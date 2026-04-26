@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { HeroBanner } from '../components/HeroBanner';
 import { MovieRow } from '../components/MovieRow';
 import { fetchTrendingMovies, fetchPopularTV, fetchTopRated, Media } from '../services/tmdb';
@@ -47,6 +47,53 @@ export function Home() {
     loadData();
   }, []);
 
+  const getFilteredRows = () => {
+    switch(activeFilter) {
+      case 'Anime':
+        return (
+          <>
+            <MovieRow title="Anime Series" movies={popularTV.filter(m => m.genre_ids?.includes(16))} />
+            <MovieRow title="Anime Movies" movies={trending.filter(m => m.genre_ids?.includes(16))} />
+          </>
+        );
+      case 'Cartoons':
+        return <MovieRow title="Top Cartoons" movies={topRated.filter(m => m.genre_ids?.includes(16))} />;
+      case 'TV Shows':
+      case 'Series':
+        return (
+          <>
+            <MovieRow title="Popular TV Shows" movies={popularTV} isLarge />
+            <MovieRow title="Top Rated TV" movies={topRated} />
+          </>
+        );
+      case 'Movies':
+        return (
+          <>
+            <MovieRow title="Trending Movies" movies={trending} isLarge />
+            <MovieRow title="Top Rated Movies" movies={topRated} />
+          </>
+        );
+      case 'Trending':
+        return (
+          <>
+            <MovieRow title="Trending Now" movies={trending} isLarge />
+            <MovieRow title="Hot TV" movies={popularTV} />
+          </>
+        );
+      case 'Home':
+      case 'All':
+      default:
+        return (
+          <>
+            {recent.length > 0 && <MovieRow title="Continue Watching" movies={recent} isLarge />}
+            <MovieRow title="Trending Now" movies={trending} isLarge={recent.length === 0} />
+            <MovieRow title="Popular TV Shows" movies={popularTV} />
+            <MovieRow title="Top Rated Classics" movies={topRated} />
+          </>
+        );
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -78,11 +125,19 @@ export function Home() {
         </div>
       </div>
       
-      <div className="flex flex-col gap-8 z-20 relative">
-        {recent.length > 0 && <MovieRow title="Continue Watching" movies={recent} isLarge />}
-        <MovieRow title="Trending Now" movies={trending} isLarge={recent.length === 0} />
-        <MovieRow title="Popular TV Shows" movies={popularTV} />
-        <MovieRow title="Top Rated Classics" movies={topRated} />
+      <div className="flex flex-col gap-8 z-20 relative min-h-[50vh]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeFilter}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col gap-8"
+          >
+            {getFilteredRows()}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </motion.div>
   );

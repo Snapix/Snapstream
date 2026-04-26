@@ -12,9 +12,11 @@ import { Watch } from './pages/Watch';
 
 import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
-import { Cursor } from './components/Cursor';
+import { BlobCursor } from './components/BlobCursor';
 import { useState, useEffect } from 'react';
 import { subscribeToPlayState } from './components/PlayerWrapper';
+
+import { ClickSpark } from './components/ClickSpark';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -43,33 +45,42 @@ export default function App() {
   return (
     <Router>
       <div className={`relative min-h-screen bg-[#0A0F1F] text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden ${isPerformanceMode ? '' : 'bg-mesh'}`}>
-        <Cursor />
-        <AnimatePresence>
-          {showSplash && (
-            <SplashScreen onComplete={() => setShowSplash(false)} />
-          )}
-        </AnimatePresence>
-        
-        <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
-
-        <div className="relative z-10 flex flex-col flex-1">
-          <Navbar />
-          <main className="flex-1">
-            <AnimatedRoutes />
-          </main>
+        <BlobCursor
+          blobType="circle"
+          fillColor="#00bfff"
+          trailCount={2}
+          useFilter={true}
+          fastDuration={0.1}
+          slowDuration={0.35}
+        />
+        <ClickSpark sparkColor="#00bfff" sparkCount={8}>
+          <AnimatePresence>
+            {showSplash && (
+              <SplashScreen onComplete={() => setShowSplash(false)} />
+            )}
+          </AnimatePresence>
           
-          {/* Simple Footer */}
-          <footer className="py-12 px-6 flex flex-col items-center justify-center text-center text-zinc-600 text-xs border-t border-white/5 relative z-10 bg-black/40">
-            <p className="font-medium text-zinc-500 mb-2 font-display tracking-wider">SNAPSTREAM ENTERTAINMENT</p>
-            <p className="mb-4">© {new Date().getFullYear()} Infinite streaming for cinematic souls. Educational build.</p>
-            <button 
-              onClick={() => setIsAboutOpen(true)}
-              className="px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 hover:text-white transition-all duration-300"
-            >
-              About Creator
-            </button>
-          </footer>
-        </div>
+          <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
+
+          <div className="relative z-10 flex flex-col flex-1">
+            <Navbar />
+            <main className="flex-1">
+              <AnimatedRoutes />
+            </main>
+            
+            {/* Simple Footer */}
+            <footer className="py-12 px-6 flex flex-col items-center justify-center text-center text-zinc-600 text-xs border-t border-white/5 relative z-10 bg-black/40">
+              <p className="font-medium text-zinc-500 mb-2 font-display tracking-wider">SNAPSTREAM ENTERTAINMENT</p>
+              <p className="mb-4">© {new Date().getFullYear()} Infinite streaming for cinematic souls. Educational build.</p>
+              <button 
+                onClick={() => setIsAboutOpen(true)}
+                className="px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 hover:text-white transition-all duration-300"
+              >
+                About Creator
+              </button>
+            </footer>
+          </div>
+        </ClickSpark>
       </div>
     </Router>
   );

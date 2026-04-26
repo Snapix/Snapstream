@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Play, Info } from 'lucide-react';
 import { Media } from '../services/tmdb';
 import { TMDB_IMAGE_BASE_URL } from '../constants';
+import { BorderGlow } from './BorderGlow';
 
 interface HeroBannerProps {
   movie: Media | null;
@@ -72,14 +73,16 @@ export function HeroBanner({ movie }: HeroBannerProps) {
           
           <div className="flex items-center gap-4">
             <Link to={`/watch/movie/${movie.id}`}>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 bg-white text-black px-8 py-3 rounded-md font-bold hover:bg-gray-200 transition-colors"
-              >
-                <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-black" />
-                Play Now
-              </motion.button>
+              <BorderGlow className="rounded-md overflow-hidden">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 bg-white text-black w-full px-8 py-3 rounded-md font-bold hover:bg-gray-200 transition-colors relative z-10"
+                >
+                  <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-black" />
+                  Play Now
+                </motion.button>
+              </BorderGlow>
             </Link>
             
             <motion.button

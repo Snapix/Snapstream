@@ -4,6 +4,10 @@ import { motion } from 'motion/react';
 import { Media } from '../services/tmdb';
 import { MovieCard } from './MovieCard';
 
+import { BorderGlow } from './BorderGlow';
+import { BlurText } from './BlurText';
+import { FadeContent } from './FadeContent';
+
 interface MovieRowProps {
   title: string;
   movies: Media[];
@@ -24,9 +28,9 @@ export function MovieRow({ title, movies, isLarge = false }: MovieRowProps) {
   if (!movies || movies.length === 0) return null;
 
   return (
-    <div className="relative group py-4">
+    <FadeContent className="relative group py-4">
       <h3 className="text-lg font-bold mb-4 px-4 sm:px-6 lg:px-8 flex items-center gap-2 text-white">
-        {title}
+        <BlurText text={title} />
         {(title.includes('Trending') || title.includes('Continue')) && (
           <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
         )}
@@ -59,7 +63,13 @@ export function MovieRow({ title, movies, isLarge = false }: MovieRowProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <MovieCard media={movie} isLarge={isLarge} />
+              {title.includes('Continue') ? (
+                <BorderGlow className="rounded-xl overflow-hidden shrink-0 block">
+                  <MovieCard media={movie} isLarge={isLarge} />
+                </BorderGlow>
+              ) : (
+                <MovieCard media={movie} isLarge={isLarge} />
+              )}
             </motion.div>
           ))}
         </div>
@@ -72,6 +82,6 @@ export function MovieRow({ title, movies, isLarge = false }: MovieRowProps) {
           <ChevronRight className="w-8 h-8" />
         </button>
       </div>
-    </div>
+    </FadeContent>
   );
 }

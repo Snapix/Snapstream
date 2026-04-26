@@ -141,20 +141,20 @@ export function PlayerWrapper({
             className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between"
           >
             {/* Top Bar */}
-            <div className="w-full p-4 sm:p-6 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start">
-              <div className="flex flex-col">
-                <h2 className="text-white font-bold text-lg sm:text-2xl drop-shadow-lg font-display">{title}</h2>
+            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-start gap-4 pointer-events-auto transition-all duration-300">
+              <div className="flex flex-col max-w-[70%]">
+                <h2 className="text-white font-bold text-base sm:text-lg md:text-2xl drop-shadow-lg font-display truncate">{title}</h2>
                 {type === 'tv' && (
-                  <span className="text-primary font-medium text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
+                  <span className="text-primary font-medium text-xs sm:text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
                 )}
               </div>
               
-              <div className="flex items-center gap-3 pointer-events-auto">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}
-                  className="p-2 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-110 active:scale-95 border border-white/10"
+                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-105 active:scale-95 border border-white/10"
                 >
-                  <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Settings className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" />
                 </button>
               </div>
             </div>
@@ -189,34 +189,35 @@ export function PlayerWrapper({
             </div>
 
             {/* Bottom Bar */}
-            <div className="w-full p-4 sm:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex justify-between items-end pointer-events-auto">
-              <div className="flex items-center gap-4">
+            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-auto transition-all duration-300">
+              <div className="flex items-center gap-3 sm:gap-4">
                 {/* Custom Wrapper Play button */}
                 <button 
                   onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
-                  className="p-3 bg-primary hover:bg-primary/80 rounded-full text-white transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,191,255,0.4)]"
+                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-primary hover:bg-primary/80 rounded-full text-white transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,191,255,0.4)]"
                 >
-                  {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current translate-x-0.5" />}
+                  {isPlaying ? <Pause className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px] fill-current" /> : <Play className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px] fill-current translate-x-0.5" />}
                 </button>
                 
                 {/* Next episode button if TV */}
                 {type === 'tv' && onEpisodeChange && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); onEpisodeChange(season, episode + 1); }}
-                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white font-medium text-sm transition-all border border-white/10"
+                    className="flex items-center gap-2 px-4 h-[40px] sm:h-[48px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white font-medium text-xs sm:text-sm md:text-base transition-all border border-white/10"
                   >
-                    Next Episode
-                    <FastForward className="w-4 h-4 fill-current" />
+                    <span className="hidden sm:inline">Next Episode</span>
+                    <span className="sm:hidden">Next</span>
+                    <FastForward className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] fill-current" />
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                  className="p-2 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-110 active:scale-95 border border-white/10"
+                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-110 active:scale-95 border border-white/10"
                 >
-                  {isFullscreen ? <Minimize className="w-4 h-4 sm:w-5 sm:h-5" /> : <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />}
+                  {isFullscreen ? <Minimize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" /> : <Maximize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" />}
                 </button>
               </div>
             </div>
