@@ -2,11 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @theme {
-  --color-background: #050505;
+  --color-background: #0A0F1F;
   --color-foreground: #ffffff;
-  --color-primary: #e50914; 
-  --color-accent-purple: #A855F7;
-  --color-surface: #121212;
+  --color-primary: #00BFFF; 
+  --color-accent-purple: #1E90FF;
+  --color-surface: #162033;
   
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
@@ -17,7 +17,7 @@
 
 @layer base {
   body {
-    @apply bg-[#050505] text-white font-sans antialiased overflow-x-hidden selection:bg-accent-purple/30;
+    @apply bg-[#08111D] text-white font-sans antialiased overflow-x-hidden selection:bg-accent-purple/30;
   }
 
   h1, h2, h3, h4 {
@@ -26,10 +26,10 @@
 }
 
 .bg-mesh {
-  background-color: #050505;
-  background-image: radial-gradient(at 80% 0%, hsla(280, 100%, 70%, 0.15) 0px, transparent 50%),
-                    radial-gradient(at 0% 50%, hsla(355, 100%, 65%, 0.1) 0px, transparent 50%),
-                    radial-gradient(at 80% 100%, hsla(280, 100%, 70%, 0.15) 0px, transparent 50%);
+  background-color: #0A0F1F;
+  background-image: radial-gradient(at 80% 0%, hsla(210, 100%, 70%, 0.1) 0px, transparent 50%),
+                    radial-gradient(at 0% 50%, hsla(200, 100%, 65%, 0.1) 0px, transparent 50%),
+                    radial-gradient(at 80% 100%, hsla(210, 100%, 70%, 0.1) 0px, transparent 50%);
 }
 
 .glass-panel {
@@ -46,6 +46,10 @@
 
 .mask-fade-t {
   mask-image: linear-gradient(to top, black 50%, transparent);
+}
+
+.mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
 
 .scrollbar-hide::-webkit-scrollbar {

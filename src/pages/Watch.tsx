@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowLeft } from 'lucide-react';
 import { fetchMovieDetails, fetchSimilar, Media } from '../services/tmdb';
 import { MovieRow } from '../components/MovieRow';
+import { PlayerWrapper } from '../components/PlayerWrapper';
 
 export function Watch() {
   const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>();
@@ -11,6 +12,10 @@ export function Watch() {
   const [details, setDetails] = useState<Media | null>(null);
   const [similar, setSimilar] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Track season/episode for TV
+  const [season, setSeason] = useState(1);
+  const [episode, setEpisode] = useState(1);
 
   useEffect(() => {
     const loadDetails = async () => {
@@ -23,6 +28,14 @@ export function Watch() {
         ]);
         setDetails(detailsData);
         setSimilar(similarData);
+
+        // Save to Continue Watching
+        const recentRaw = localStorage.getItem('snapstream_recent');
+        const recent: Media[] = recentRaw ? JSON.parse(recentRaw) : [];
+        const filtered = recent.filter(m => m.id !== detailsData.id);
+        const newRecent = [detailsData, ...filtered].slice(0, 10);
+        localStorage.setItem('snapstream_recent', JSON.stringify(newRecent));
+        
       } catch (error) {
         console.error('Failed to load movie details', error);
       } finally {
@@ -37,79 +50,86 @@ export function Watch() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0F1F]">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,191,255,0.5)]" />
       </div>
     );
   }
 
   if (!details) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <h2>Content not found</h2>
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0F1F] text-white">
+        <h2 className="font-display text-2xl font-bold">Content not found</h2>
       </div>
     );
   }
 
-  // Construct player URL with parameters for customization
+  // Use Strict Vidking URL
   const embedUrl = type === 'tv' 
-    ? `https://vidlink.pro/tv/${id}/1/1?primaryColor=e50914&autoplay=true` 
-    : `https://vidlink.pro/movie/${id}?primaryColor=e50914&autoplay=true`;
+    ? `https://www.vidking.net/embed/tv/${id}/${season}/${episode}` 
+    : `https://www.vidking.net/embed/movie/${id}`;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-black"
+      className="min-h-screen bg-[#0A0F1F]"
     >
       {/* Immersive Overlay Back Button */}
-      <div className="fixed top-24 left-8 z-50">
+      <div className="fixed top-24 left-8 z-50 pointer-events-auto">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 group"
+          className="flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group shadow-xl"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">Exit Theater</span>
+          <span className="font-medium text-sm tracking-wide uppercase">Exit Theater</span>
         </button>
       </div>
 
-      {/* Video Player - Full viewport cinema mode */}
-      <div className="w-full h-screen bg-black relative flex items-center justify-center">
-        {/* Ambient background light */}
-        <div className="absolute inset-0 bg-primary/5 blur-[120px] pointer-events-none" />
-        
-        <iframe
-          src={embedUrl}
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allowFullScreen
-          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-          referrerPolicy="no-referrer"
-          className="w-full h-full relative z-10"
-          title={details.title || details.name}
-        ></iframe>
-      </div>
+      {/* Video Player Wrapper */}
+      <motion.div 
+        layoutId={`card-container-${id}`}
+        className="w-full flex justify-center py-0 sm:py-6"
+      >
+        <div className="w-full max-w-[1600px] mx-auto sm:px-6">
+          <PlayerWrapper 
+            embedUrl={embedUrl}
+            title={details.title || details.name || ''}
+            type={type || 'movie'}
+            season={season}
+            episode={episode}
+            onEpisodeChange={(s, e) => {
+              setSeason(s);
+              setEpisode(e);
+            }}
+          />
+        </div>
+      </motion.div>
 
       {/* Details Section - Scrolled down */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 py-16">
+      <motion.div 
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="max-w-7xl mx-auto px-6 sm:px-12 py-12"
+      >
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 font-display text-glow">
               {details.title || details.name}
             </h1>
-            <div className="flex items-center gap-4 text-sm text-zinc-400 mb-6">
-              <span className="text-green-400 font-semibold">{Math.round(details.vote_average * 10)}% Match</span>
-              <span>{(details.release_date || details.first_air_date)?.split('-')[0]}</span>
-              {/* Optional UI elements could go here */}
+            <div className="flex items-center gap-4 text-sm font-semibold uppercase tracking-wider mb-6">
+              <span className="text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">{Math.round(details.vote_average * 10)}% Match</span>
+              <span className="text-zinc-400">{(details.release_date || details.first_air_date)?.split('-')[0]}</span>
+              <span className="text-zinc-400 border border-zinc-700 px-2 rounded-sm bg-black/50">4K UHD</span>
             </div>
-            <p className="text-zinc-300 sm:text-lg leading-relaxed max-w-3xl">
+            <p className="text-zinc-300 sm:text-lg leading-relaxed max-w-3xl drop-shadow-md">
               {details.overview}
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Similar Movies Row */}
       {similar.length > 0 && (

@@ -20,6 +20,7 @@ export function MovieCard({ media, isLarge = false }: MovieCardProps) {
   return (
     <Link to={`/watch/${media.media_type || 'movie'}/${media.id}`}>
       <motion.div
+        layoutId={`card-container-${media.id}`}
         whileHover={{ 
           scale: 1.05, 
           zIndex: 40,
@@ -34,23 +35,13 @@ export function MovieCard({ media, isLarge = false }: MovieCardProps) {
           isLarge ? "w-[160px] sm:w-[220px] aspect-[2/3]" : "w-[260px] sm:w-[320px] aspect-video"
         )}
       >
-        <img
+        <motion.img
+          layoutId={`image-${media.id}`}
           src={imageUrl}
           alt={media.title || media.name}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
         />
-        
-        {/* Progress Bar (Simulated) */}
-        {!isLarge && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 z-20">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.random() * 80 + 10}%` }}
-              className="h-full bg-primary" 
-            />
-          </div>
-        )}
         
         {/* Permanent Bottom Shadow for readability */}
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/60 to-transparent z-10" />

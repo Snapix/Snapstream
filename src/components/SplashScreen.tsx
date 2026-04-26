@@ -29,13 +29,22 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
           />
           
           <div className="relative flex flex-col items-center">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: "circOut" }}
+              className="w-24 h-24 sm:w-32 sm:h-32 mb-6 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,191,255,0.6)] bg-black/50 border border-white/5 relative flex items-center justify-center"
+            >
+              <img src="/icon.jpeg" alt="SnapStream Logo" className="w-full h-full object-cover z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+              <div className="absolute inset-0 bg-primary/20 blur-md" />
+            </motion.div>
             <motion.h1
               initial={{ scale: 0.8, opacity: 0, letterSpacing: "1em" }}
               animate={{ scale: 1, opacity: 1, letterSpacing: "0.1em" }}
               transition={{ duration: 1.5, ease: "circOut" }}
-              className="text-6xl sm:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-purple-600 drop-shadow-[0_0_30px_rgba(229,9,20,0.5)] italic uppercase"
+              className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple drop-shadow-[0_0_30px_rgba(0,191,255,0.5)] italic uppercase"
             >
-              Snapstream
+              SnapStream
             </motion.h1>
             
             <motion.div

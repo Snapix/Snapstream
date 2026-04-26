@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, Bell, User, PlayCircle } from 'lucide-react';
+import { Search, PlayCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
@@ -39,11 +39,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
         <div className="flex items-center gap-10">
           <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center rotate-[-10deg] group-hover:rotate-0 transition-transform duration-500 shadow-[0_0_20px_rgba(229,9,20,0.4)]">
-              <PlayCircle className="w-6 h-6 text-white fill-current" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center transition-transform duration-500 shadow-[0_0_20px_rgba(0,191,255,0.4)] bg-black/50 border border-white/5">
+              <img src="/icon.jpeg" alt="SnapStream" className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
+              <PlayCircle className="w-6 h-6 text-white absolute fill-current opacity-50" />
             </div>
             <span className="text-2xl sm:text-3xl font-black tracking-tighter italic uppercase text-white font-display group-hover:text-glow transition-all">
-              Snapstream
+              SnapStream
             </span>
           </Link>
           
@@ -84,7 +85,7 @@ export function Navbar() {
                   placeholder="Search movies..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-white/10 border border-white/10 text-white text-sm rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/50 w-[200px] sm:w-[250px] transition-all"
+                  className="bg-white/10 border border-white/10 text-white text-sm rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 w-[200px] sm:w-[250px] transition-all"
                   onBlur={() => {
                     if (!searchQuery) setIsSearchOpen(false);
                   }}
@@ -102,14 +103,6 @@ export function Navbar() {
               </motion.button>
             )}
           </AnimatePresence>
-
-          <button className="text-white hover:text-zinc-300 transition-colors hidden sm:block">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          
-          <div className="w-8 h-8 rounded-md bg-gradient-to-tr from-purple-600 to-red-500 flex items-center justify-center cursor-pointer">
-            <User className="w-5 h-5 text-white/80" />
-          </div>
         </div>
       </div>
     </motion.header>
