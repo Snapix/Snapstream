@@ -36,20 +36,20 @@ export function Navbar() {
         isScrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-gradient-to-b from-black/80 to-transparent"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-        <div className="flex items-center gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 grid grid-cols-3 items-center">
+        {/* Left: Logo and Nav */}
+        <div className="flex items-center gap-10 justify-start">
           <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center transition-transform duration-500 shadow-[0_0_20px_rgba(0,191,255,0.4)] bg-black/50 border border-white/5">
-              <img src="/icon.jpeg" alt="SnapStream" className="w-full h-full object-cover" onError={(e) => e.currentTarget.style.display = 'none'} />
-              <PlayCircle className="w-6 h-6 text-white absolute fill-current opacity-50" />
+              <PlayCircle className="w-6 h-6 text-primary fill-current drop-shadow-lg" />
             </div>
-            <span className="text-2xl sm:text-3xl font-black tracking-tighter italic uppercase text-white font-display group-hover:text-glow transition-all">
+            <span className="text-2xl sm:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple font-display italic uppercase group-hover:text-glow transition-all">
               SnapStream
             </span>
           </Link>
           
-          <nav className="hidden md:flex gap-8 text-sm font-semibold tracking-wide uppercase">
-            {['Home', 'Movies', 'TV Shows', 'My List'].map((item) => (
+          <nav className="hidden lg:flex gap-6 text-sm font-semibold tracking-wide uppercase">
+            {['Home', 'Movies', 'TV Shows'].map((item) => (
               <Link 
                 key={item}
                 to="/" 
@@ -59,50 +59,33 @@ export function Navbar() {
                 )}
               >
                 {item}
-                <span className={cn(
-                  "absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300",
-                  location.pathname === '/' && item === 'Home' ? 'w-full' : 'w-0 group-hover:w-full'
-                )} />
               </Link>
             ))}
           </nav>
         </div>
 
-        <div className="flex items-center gap-4 sm:gap-6">
-          <AnimatePresence>
-            {isSearchOpen ? (
-              <motion.form
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "auto", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                onSubmit={handleSearch}
-                className="relative flex items-center"
-              >
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="Search movies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-white/10 border border-white/10 text-white text-sm rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 w-[200px] sm:w-[250px] transition-all"
-                  onBlur={() => {
-                    if (!searchQuery) setIsSearchOpen(false);
-                  }}
-                />
-                <Search className="absolute left-3 w-4 h-4 text-zinc-400" />
-              </motion.form>
-            ) : (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsSearchOpen(true)}
-                className="text-white p-1"
-              >
-                <Search className="w-5 h-5 sm:w-6 sm:h-6" />
-              </motion.button>
-            )}
-          </AnimatePresence>
+        {/* Center: Search */}
+        <div className="flex justify-center w-full max-w-lg mx-auto">
+          <form
+             onSubmit={handleSearch}
+             className="relative flex items-center w-full"
+           >
+             <input
+               type="text"
+               placeholder="Search movies, tv shows, anime..."
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="bg-white/5 border border-white/10 text-white text-sm rounded-full pl-10 pr-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 w-full transition-all backdrop-blur-md hover:bg-white/10"
+             />
+             <Search className="absolute left-3 w-4 h-4 text-zinc-400" />
+           </form>
+        </div>
+
+        {/* Right: Actions/Profile */}
+        <div className="flex items-center justify-end gap-4 sm:gap-6">
+           <button className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-primary transition-colors">
+              <img src="/profile.jpeg" alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display='none'; }}/>
+           </button>
         </div>
       </div>
     </motion.header>

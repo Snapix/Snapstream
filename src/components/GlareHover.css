@@ -1,0 +1,45 @@
+.glare-hover {
+  position: relative;
+  width: var(--gh-width);
+  height: var(--gh-height);
+  background: var(--gh-bg);
+  border-radius: var(--gh-br);
+  overflow: hidden;
+  border: 1px solid var(--gh-border);
+  isolation: isolate;
+}
+
+.glare-hover::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    var(--gh-angle),
+    transparent 0%,
+    transparent 35%,
+    var(--gh-rgba) 50%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: var(--gh-size) var(--gh-size);
+  background-position: -250% -250%;
+  background-repeat: no-repeat;
+  transition: background-position var(--gh-duration) ease-in-out;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* On hover on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .glare-hover:hover::before {
+    background-position: 250% 250%;
+  }
+
+  .glare-hover--play-once:hover::before {
+    transition: none; /* remove transition so it doesn't rewind on mouse out */
+  }
+}

@@ -3,18 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Maximize, Minimize, Settings, FastForward, Rewind, Play, Pause, Languages } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-// Helper to disable animations globally when playing
-export const subscribeToPlayState = (callback: (isPlaying: boolean) => void) => {
-  const listener = (e: Event) => callback((e as CustomEvent).detail);
-  window.addEventListener('snapstream-play-state', listener);
-  return () => window.removeEventListener('snapstream-play-state', listener);
-};
-
-export const setGlobalPlayState = (isPlaying: boolean) => {
-  window.dispatchEvent(new CustomEvent('snapstream-play-state', { detail: isPlaying }));
-};
-
-
 interface PlayerWrapperProps {
   embedUrl: string;
   title: string;
@@ -34,16 +22,9 @@ export function PlayerWrapper({
 }: PlayerWrapperProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true); // Assuming auto-play starts
-  const [showControls, setShowControls] = useState(true);
+  const [showControls, setShowControls] = useState(false); // only show top/bottom occasionally or on hover
   const [showSettings, setShowSettings] = useState(false);
   
-  // Update global state for performance mode
-  useEffect(() => {
-    setGlobalPlayState(isPlaying);
-    return () => setGlobalPlayState(false);
-  }, [isPlaying]);
-
   // Handle Fullscreen
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -72,43 +53,32 @@ export function PlayerWrapper({
         case 'f':
           toggleFullscreen();
           break;
-        case ' ':
-          e.preventDefault();
-          setIsPlaying(p => !p);
-          break;
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Control fading
-  useEffect(() => {
-    if (!isPlaying) {
-      setShowControls(true);
-      return;
-    }
-    
-    const timeout = setTimeout(() => {
-      if (!showSettings) setShowControls(false);
-    }, 3000);
-    
-    return () => clearTimeout(timeout);
-  }, [isPlaying, showControls, showSettings]);
+  let hideTimeout: NodeJS.Timeout;
+  const handleMouseMove = () => {
+    setShowControls(true);
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      if (!showSettings) {
+        setShowControls(false);
+      }
+    }, 4000);
+  };
 
   return (
     <div 
       ref={containerRef}
       className={cn(
-        "relative w-full bg-black flex items-center justify-center overflow-hidden transition-all duration-500",
+        "relative w-full bg-black flex items-center justify-center overflow-hidden transition-all duration-500 group",
         isFullscreen ? "h-screen" : "aspect-video max-h-[80vh] rounded-xl shadow-[0_0_50px_rgba(0,191,255,0.15)] ring-1 ring-white/10"
       )}
-      onMouseMove={() => setShowControls(true)}
-      onClick={() => {
-        // Toggle play on mobile/desktop tap
-        setIsPlaying(!isPlaying);
-        setShowControls(true);
-      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => !showSettings && setShowControls(false)}
     >
       {/* Background glow when not fullscreen */}
       {!isFullscreen && (
@@ -124,10 +94,7 @@ export function PlayerWrapper({
         allowFullScreen
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
         referrerPolicy="no-referrer"
-        className={cn(
-          "relative z-10 w-full h-full",
-          !isPlaying && "opacity-80" // dim slightly when paused via wrapper
-        )}
+        className="relative z-10 w-full h-full"
         title={title}
       />
 
@@ -142,14 +109,14 @@ export function PlayerWrapper({
           >
             {/* Top Bar */}
             <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-start gap-4 pointer-events-auto transition-all duration-300">
-              <div className="flex flex-col max-w-[70%]">
+              <div className="flex flex-col max-w-[70%] pointer-events-none">
                 <h2 className="text-white font-bold text-base sm:text-lg md:text-2xl drop-shadow-lg font-display truncate">{title}</h2>
                 {type === 'tv' && (
                   <span className="text-primary font-medium text-xs sm:text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
                 )}
               </div>
               
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}
                   className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-105 active:scale-95 border border-white/10"
@@ -159,46 +126,9 @@ export function PlayerWrapper({
               </div>
             </div>
 
-            {/* Tap zones for double-tap (Mobile) - Left and Right for FF/RW */}
-            <div className="absolute inset-0 flex justify-between px-10 items-center pointer-events-none">
-                <div 
-                  className="w-1/3 h-full pointer-events-auto" 
-                  onDoubleClick={(e) => { e.stopPropagation(); /* trigger RW */ }}
-                />
-                <div 
-                  className="w-1/3 h-full flex justify-center items-center pointer-events-none"
-                >
-                  {/* Big center play/pause indicator */}
-                  <AnimatePresence>
-                    {!isPlaying && (
-                      <motion.div
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 1.5, opacity: 0 }}
-                        className="w-20 h-20 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20"
-                      >
-                        <Play className="w-10 h-10 text-white fill-current translate-x-1" />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-                <div 
-                  className="w-1/3 h-full pointer-events-auto" 
-                  onDoubleClick={(e) => { e.stopPropagation(); /* trigger FF */ }}
-                />
-            </div>
-
-            {/* Bottom Bar */}
-            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-auto transition-all duration-300">
-              <div className="flex items-center gap-3 sm:gap-4">
-                {/* Custom Wrapper Play button */}
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setIsPlaying(!isPlaying); }}
-                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-primary hover:bg-primary/80 rounded-full text-white transition-all transform hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(0,191,255,0.4)]"
-                >
-                  {isPlaying ? <Pause className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px] fill-current" /> : <Play className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px] fill-current translate-x-0.5" />}
-                </button>
-                
+            {/* Bottom Bar ONLY for next episode & fullscreen. Play/Pause removed to let native iframe handle it */}
+            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-none transition-all duration-300">
+              <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
                 {/* Next episode button if TV */}
                 {type === 'tv' && onEpisodeChange && (
                   <button 
@@ -212,9 +142,10 @@ export function PlayerWrapper({
                 )}
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+                  title="Fullscreen"
                   className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-110 active:scale-95 border border-white/10"
                 >
                   {isFullscreen ? <Minimize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" /> : <Maximize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" />}
@@ -238,24 +169,6 @@ export function PlayerWrapper({
             <h3 className="text-white font-bold mb-4 font-display border-b border-white/10 pb-2">Stream Settings</h3>
             
             <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Server</span>
-                <select className="bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-primary">
-                  <option>Auto (Vidking)</option>
-                  <option>Server 1</option>
-                  <option>Server 2</option>
-                </select>
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Quality</span>
-                <select className="bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-primary">
-                  <option>Auto</option>
-                  <option>1080p</option>
-                  <option>720p</option>
-                </select>
-              </div>
-              
               {type === 'tv' && (
                 <div className="flex flex-col gap-2">
                   <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Season & Episode</span>
@@ -265,7 +178,7 @@ export function PlayerWrapper({
                       min={1} 
                       value={season} 
                       onChange={(e) => onEpisodeChange?.(parseInt(e.target.value) || 1, episode)}
-                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none"
+                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-primary"
                       placeholder="Season"
                     />
                     <input 
@@ -273,7 +186,7 @@ export function PlayerWrapper({
                       min={1} 
                       value={episode}
                       onChange={(e) => onEpisodeChange?.(season, parseInt(e.target.value) || 1)}
-                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none"
+                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-primary"
                       placeholder="Episode"
                     />
                   </div>

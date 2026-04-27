@@ -1,15 +1,30 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
+import { BlurText } from "./BlurText";
+import { PlayCircle } from "lucide-react";
 
 export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [isVisible, setIsVisible] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // 6 seconds splash
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onComplete, 500); // Allow exit animation
-    }, 2500);
-    return () => clearTimeout(timer);
+    }, 6000);
+
+    const progressTimer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) return 100;
+        return prev + Math.floor(Math.random() * 20) + 10;
+      });
+    }, 800);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressTimer);
+    };
   }, [onComplete]);
 
   return (
@@ -28,40 +43,36 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             className="absolute inset-0 bg-primary rounded-full blur-[150px]"
           />
           
-          <div className="relative flex flex-col items-center">
+          <div className="relative flex flex-col items-center justify-center w-full max-w-sm px-6">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.5, ease: "circOut" }}
-              className="w-24 h-24 sm:w-32 sm:h-32 mb-6 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,191,255,0.6)] bg-black/50 border border-white/5 relative flex items-center justify-center"
+              className="w-24 h-24 sm:w-32 sm:h-32 mb-8 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,191,255,0.6)] bg-black/50 border border-white/5 relative flex items-center justify-center"
             >
-              <img src="/icon.jpeg" alt="SnapStream Logo" className="w-full h-full object-cover z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
+              <PlayCircle className="w-12 h-12 text-primary fill-current drop-shadow-lg z-10" />
               <div className="absolute inset-0 bg-primary/20 blur-md" />
             </motion.div>
-            <motion.h1
-              initial={{ scale: 0.8, opacity: 0, letterSpacing: "1em" }}
-              animate={{ scale: 1, opacity: 1, letterSpacing: "0.1em" }}
-              transition={{ duration: 1.5, ease: "circOut" }}
-              className="text-5xl sm:text-7xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple drop-shadow-[0_0_30px_rgba(0,191,255,0.5)] italic uppercase"
-            >
-              SnapStream
-            </motion.h1>
             
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "100%", opacity: 0.6 }}
-              transition={{ delay: 0.5, duration: 1, ease: "easeInOut" }}
-              className="h-px bg-gradient-to-r from-transparent via-white to-transparent mt-4"
-            />
-            
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-              className="text-zinc-500 font-medium tracking-[0.3em] uppercase text-xs mt-6"
-            >
-              Entering the Digital Theater
-            </motion.span>
+            <div className="text-3xl sm:text-4xl font-black tracking-wider text-white font-serif uppercase mb-12">
+              <BlurText text="Loading Entertainment" delay={200} animateBy="words" />
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="w-full space-y-2">
+              <div className="flex items-center justify-between gap-1 text-zinc-400 font-mono text-xs uppercase tracking-widest">
+                <span>Initializing Engine</span>
+                <span>{Math.min(progress, 100)}%</span>
+              </div>
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="h-full bg-primary shadow-[0_0_10px_#00bfff]"
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
       )}

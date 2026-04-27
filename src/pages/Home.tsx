@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HeroBanner } from '../components/HeroBanner';
 import { MovieRow } from '../components/MovieRow';
-import { fetchTrendingMovies, fetchPopularTV, fetchTopRated, Media } from '../services/tmdb';
+import { fetchTrendingMovies, fetchPopularTV, fetchTopRated, fetchAnime, fetchCartoons, Media } from '../services/tmdb';
 
 const FILTERS = ['All', 'Anime', 'TV Shows', 'Series', 'Cartoons', 'Movies'];
 
@@ -10,7 +10,8 @@ export function Home() {
   const [trending, setTrending] = useState<Media[]>([]);
   const [popularTV, setPopularTV] = useState<Media[]>([]);
   const [topRated, setTopRated] = useState<Media[]>([]);
-  const [heroMovie, setHeroMovie] = useState<Media | null>(null);
+  const [anime, setAnime] = useState<Media[]>([]);
+  const [cartoons, setCartoons] = useState<Media[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
   const [recent, setRecent] = useState<Media[]>([]);
 
@@ -25,21 +26,19 @@ export function Home() {
 
     const loadData = async () => {
       try {
-        const [trendingRes, tvRes, topRes] = await Promise.all([
+        const [trendingRes, tvRes, topRes, animeRes, cartoonsRes] = await Promise.all([
           fetchTrendingMovies(),
           fetchPopularTV(),
           fetchTopRated(),
+          fetchAnime(),
+          fetchCartoons()
         ]);
         
         setTrending(trendingRes);
         setPopularTV(tvRes);
         setTopRated(topRes);
-        
-        // Pick a random movie for the hero banner
-        if (trendingRes.length > 0) {
-          const randomIndex = Math.floor(Math.random() * Math.min(5, trendingRes.length));
-          setHeroMovie(trendingRes[randomIndex]);
-        }
+        setAnime(animeRes);
+        setCartoons(cartoonsRes);
       } catch (error) {
         console.error('Failed to load initial data', error);
       }
@@ -52,12 +51,17 @@ export function Home() {
       case 'Anime':
         return (
           <>
-            <MovieRow title="Anime Series" movies={popularTV.filter(m => m.genre_ids?.includes(16))} />
-            <MovieRow title="Anime Movies" movies={trending.filter(m => m.genre_ids?.includes(16))} />
+            <MovieRow title="Mainstream Anime" movies={anime} isLarge />
+            <MovieRow title="Popular Anime" movies={popularTV.filter(m => m.genre_ids?.includes(16))} />
           </>
         );
       case 'Cartoons':
-        return <MovieRow title="Top Cartoons" movies={topRated.filter(m => m.genre_ids?.includes(16))} />;
+        return (
+            <>
+                <MovieRow title="Top Cartoons" movies={cartoons} isLarge />
+                <MovieRow title="Family Favorites" movies={topRated.filter(m => m.genre_ids?.includes(16) || m.genre_ids?.includes(10751))} />
+            </>
+        );
       case 'TV Shows':
       case 'Series':
         return (
@@ -102,7 +106,7 @@ export function Home() {
       transition={{ duration: 0.5 }}
       className="pb-20 relative"
     >
-      <HeroBanner movie={heroMovie} />
+      <HeroBanner movies={trending.slice(0, 10)} />
 
       {/* Sticky Content Filters */}
       <div className="sticky top-16 sm:top-20 z-40 bg-[#0A0F1F]/80 backdrop-blur-xl border-y border-white/5 py-3 mb-8 -mt-8 sm:-mt-12 overflow-hidden shadow-lg">

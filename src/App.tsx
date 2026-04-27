@@ -12,11 +12,10 @@ import { Watch } from './pages/Watch';
 
 import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
-import { BlobCursor } from './components/BlobCursor';
 import { useState, useEffect } from 'react';
-import { subscribeToPlayState } from './components/PlayerWrapper';
 
 import { ClickSpark } from './components/ClickSpark';
+import { ShadowOverlay } from './components/ShadowOverlay';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -36,24 +35,17 @@ function AnimatedRoutes() {
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [isPerformanceMode, setIsPerformanceMode] = useState(false);
-
-  useEffect(() => {
-    return subscribeToPlayState(setIsPerformanceMode);
-  }, []);
 
   return (
     <Router>
-      <div className={`relative min-h-screen bg-[#0A0F1F] text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden ${isPerformanceMode ? '' : 'bg-mesh'}`}>
-        <BlobCursor
-          blobType="circle"
-          fillColor="#00bfff"
-          trailCount={2}
-          useFilter={true}
-          fastDuration={0.1}
-          slowDuration={0.35}
+      <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden">
+        <ShadowOverlay 
+          sizing="fill" 
+          color="#0A0F1F" 
+          animation={{ scale: 30, speed: 50 }} 
+          noise={{ opacity: 0.1, scale: 1 }}
         />
-        <ClickSpark sparkColor="#00bfff" sparkCount={8}>
+        <ClickSpark sparkColor="#ffffff" sparkCount={12} sparkSize={15}>
           <AnimatePresence>
             {showSplash && (
               <SplashScreen onComplete={() => setShowSplash(false)} />
