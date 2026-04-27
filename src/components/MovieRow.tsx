@@ -1,87 +1,138 @@
-import { useRef } from 'react';
+import { useRef, useCallback, memo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Media } from '../services/tmdb';
 import { MovieCard } from './MovieCard';
-
-import { BorderGlow } from './BorderGlow';
-import { BlurText } from './BlurText';
 import { FadeContent } from './FadeContent';
 
 interface MovieRowProps {
-  title: string;
-  movies: Media[];
+  title:   string;
+  movies:  Media[];
   isLarge?: boolean;
 }
 
-export function MovieRow({ title, movies, isLarge = false }: MovieRowProps) {
+/**
+ * Optimized movie row.
+ * ✓ React.memo — no rerender when parent re-renders for other rows
+ * ✓ useCallback on scroll handlers
+ * ✓ Fade-in via FadeContent (IntersectionObserver, fires once)
+ * ✓ Native smooth scroll (no jank)
+ * ✓ CSS mask fade on edges
+ */
+export const MovieRow = memo(function MovieRow({ title, movies, isLarge = false }: MovieRowProps) {
   const rowRef = useRef<HTMLDivElement>(null);
 
-  const slide = (direction: 'left' | 'right') => {
-    if (rowRef.current) {
-      const { scrollLeft, clientWidth } = rowRef.current;
-      const scrollTo = direction === 'left' ? scrollLeft - clientWidth + 100 : scrollLeft + clientWidth - 100;
-      rowRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
-    }
-  };
+  const slide = useCallback((direction: 'left' | 'right') => {
+    const el = rowRef.current;
+    if (!el) return;
+    const amount = direction === 'left'
+      ? -el.clientWidth + 80
+      :  el.clientWidth - 80;
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+  }, []);
 
-  if (!movies || movies.length === 0) return null;
+  const slideLeft  = useCallback(() => slide('left'),  [slide]);
+  const slideRight = useCallback(() => slide('right'), [slide]);
+
+  if (!movies?.length) return null;
+
+  const isLive    = title.includes('Trending') || title.includes('Continue');
+  const isContinue = title.includes('Continue');
 
   return (
-    <FadeContent className="relative group py-4">
-      <h3 className="text-lg font-bold mb-4 px-4 sm:px-6 lg:px-8 flex items-center gap-2 text-white">
-        <BlurText text={title} />
-        {(title.includes('Trending') || title.includes('Continue')) && (
-          <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span>
-        )}
-      </h3>
-      
-      <div className="relative flex items-center">
-        {/* Left Arrow */}
-        <button
-          onClick={() => slide('left')}
-          className="absolute left-0 z-40 bg-black/50 backdrop-blur-md h-full w-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 text-white"
-        >
-          <ChevronLeft className="w-8 h-8" />
-        </button>
+    <FadeContent className="relative group/row py-2 select-none" delay={0.05}>
 
-        {/* Scrollable Container */}
+      {/* ── Section header ──────────────────────────────── */}
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-4">
+        <h3 className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-white">
+          {/* Accent bar */}
+          <span
+            className="w-1 h-5 rounded-full flex-shrink-0"
+            style={{
+              background: isContinue
+                ? 'linear-gradient(to bottom, #00f3ff, #0080ff)'
+                : isLive
+                  ? 'linear-gradient(to bottom, #ff4444, #ff8800)'
+                  : 'linear-gradient(to bottom, rgba(255,255,255,.3), rgba(255,255,255,.05))',
+              boxShadow: isLive ? '0 0 8px rgba(255,50,50,.5)' : undefined,
+            }}
+          />
+          {title}
+          {isLive && (
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
+          )}
+        </h3>
+
+        {/* View all (optional) */}
+        <button className="text-[11px] font-semibold text-zinc-500 hover:text-[#00f3ff] transition-colors tracking-wide uppercase opacity-0 group-hover/row:opacity-100">
+          View All →
+        </button>
+      </div>
+
+      {/* ── Scroll track ─────────────────────────────────── */}
+      <div className="relative flex items-center">
+        {/* Left arrow */}
+        <motion.button
+          onClick={slideLeft}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={cn(
+            'absolute left-0 z-30 h-full w-10 sm:w-12 hidden sm:flex items-center justify-center',
+            'bg-gradient-to-r from-black/90 to-transparent',
+            'opacity-0 group-hover/row:opacity-100 transition-opacity duration-300',
+            'text-zinc-300 hover:text-white'
+          )}
+          aria-label="Scroll left"
+          style={{ willChange: 'transform' }}
+        >
+          <div className="w-8 h-8 rounded-full glass-card flex items-center justify-center border border-white/[.06]">
+            <ChevronLeft className="w-4 h-4" />
+          </div>
+        </motion.button>
+
+        {/* Scrollable list */}
         <div
           ref={rowRef}
-          className="flex gap-4 overflow-x-scroll scrollbar-hide px-4 sm:px-6 lg:px-8 pb-12 pt-4 scroll-smooth transition-all"
-          style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+          className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 pb-4 pt-1 row-fade-x"
+          style={{ scrollSnapType: 'x mandatory' }}
         >
-          <style>{`
-            .scrollbar-hide::-webkit-scrollbar {
-              display: none;
-            }
-          `}</style>
-          {movies.map((movie, index) => (
+          {movies.map((m, i) => (
             <motion.div
-              key={movie.id}
-              initial={{ opacity: 0, x: 50 }}
+              key={m.id}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: Math.min(i * 0.04, 0.4), duration: 0.4, ease: [0.25,0.46,0.45,0.94] }}
+              style={{ scrollSnapAlign: 'start', willChange: 'transform, opacity' }}
             >
-              {title.includes('Continue') ? (
-                <BorderGlow className="rounded-xl overflow-hidden shrink-0 block">
-                  <MovieCard media={movie} isLarge={isLarge} />
-                </BorderGlow>
-              ) : (
-                <MovieCard media={movie} isLarge={isLarge} />
-              )}
+              <MovieCard media={m} isLarge={isLarge} />
             </motion.div>
           ))}
         </div>
 
-        {/* Right Arrow */}
-        <button
-          onClick={() => slide('right')}
-          className="absolute right-0 z-40 bg-black/50 backdrop-blur-md h-full w-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 text-white"
+        {/* Right arrow */}
+        <motion.button
+          onClick={slideRight}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={cn(
+            'absolute right-0 z-30 h-full w-10 sm:w-12 hidden sm:flex items-center justify-center',
+            'bg-gradient-to-l from-black/90 to-transparent',
+            'opacity-0 group-hover/row:opacity-100 transition-opacity duration-300',
+            'text-zinc-300 hover:text-white'
+          )}
+          aria-label="Scroll right"
+          style={{ willChange: 'transform' }}
         >
-          <ChevronRight className="w-8 h-8" />
-        </button>
+          <div className="w-8 h-8 rounded-full glass-card flex items-center justify-center border border-white/[.06]">
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        </motion.button>
       </div>
     </FadeContent>
   );
+});
+
+// cn helper inline to avoid extra import
+function cn(...classes: (string | undefined | false | null)[]): string {
+  return classes.filter(Boolean).join(' ');
 }

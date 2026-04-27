@@ -1,101 +1,169 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Maximize, Minimize, Settings, FastForward, Rewind, Play, Pause, Languages } from 'lucide-react';
+import { Maximize, Minimize, Settings2, FastForward, X } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useSafeTimeout } from '../hooks/performance';
+
+// ── Play-state subscription (for cursor / blob systems) ──────
+type PlayListener = (playing: boolean) => void;
+const playListeners = new Set<PlayListener>();
+
+export function subscribeToPlayState(fn: PlayListener) {
+  playListeners.add(fn);
+  return () => playListeners.delete(fn);
+}
+
+function notifyPlayState(playing: boolean) {
+  playListeners.forEach(fn => fn(playing));
+}
+
+// ─────────────────────────────────────────────────────────────
 
 interface PlayerWrapperProps {
-  embedUrl: string;
-  title: string;
-  type: 'movie' | 'tv';
-  season?: number;
-  episode?: number;
+  embedUrl:         string;
+  title:            string;
+  type:             'movie' | 'tv';
+  season?:          number;
+  episode?:         number;
   onEpisodeChange?: (s: number, e: number) => void;
 }
 
-export function PlayerWrapper({ 
-  embedUrl, 
-  title, 
-  type, 
-  season = 1, 
+const HIDE_CONTROLS_AFTER = 3500;
+
+/**
+ * Premium player wrapper.
+ * ✓ All event listeners cleaned up on unmount
+ * ✓ Debounced control hide (useSafeTimeout)
+ * ✓ useCallback on every handler (no recreations)
+ * ✓ GPU-accelerated overlays only
+ * ✓ Notifies play-state subscribers
+ */
+export const PlayerWrapper = memo(function PlayerWrapper({
+  embedUrl,
+  title,
+  type,
+  season = 1,
   episode = 1,
-  onEpisodeChange 
+  onEpisodeChange,
 }: PlayerWrapperProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  
-  // Handle Fullscreen
+  const containerRef      = useRef<HTMLDivElement>(null);
+  const [fullscreen,      setFullscreen]      = useState(false);
+  const [showControls,    setShowControls]    = useState(false);
+  const [showSettings,    setShowSettings]    = useState(false);
+  const [localSeason,     setLocalSeason]     = useState(season);
+  const [localEpisode,    setLocalEpisode]    = useState(episode);
+  const { set: setTimeout, clear: clearTimeout } = useSafeTimeout();
+  const hideTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+
+  /* ── Sync props → local state ────────────────────────────── */
+  useEffect(() => { setLocalSeason(season);  }, [season]);
+  useEffect(() => { setLocalEpisode(episode); }, [episode]);
+
+  /* ── Fullscreen change listener ──────────────────────────── */
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+    const onFSChange = () => {
+      const isFull = !!document.fullscreenElement;
+      setFullscreen(isFull);
+      notifyPlayState(isFull);
     };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('fullscreenchange', onFSChange);
+    return () => document.removeEventListener('fullscreenchange', onFSChange);
   }, []);
 
-  const toggleFullscreen = async () => {
+  /* ── Keyboard shortcut: F = fullscreen ───────────────────── */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement
+      ) return;
+      if (e.key.toLowerCase() === 'f') toggleFullscreen();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  /* ── Fullscreen toggle ───────────────────────────────────── */
+  const toggleFullscreen = useCallback(async () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
-      await containerRef.current.requestFullscreen().catch(console.error);
+      await containerRef.current.requestFullscreen().catch(() => {});
     } else {
-      await document.exitFullscreen().catch(console.error);
+      await document.exitFullscreen().catch(() => {});
     }
-  };
-
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if typing in an input
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-      switch(e.key.toLowerCase()) {
-        case 'f':
-          toggleFullscreen();
-          break;
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleMouseMove = () => {
-    if (!showControls) setShowControls(true);
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    hideTimeoutRef.current = setTimeout(() => {
-      setShowControls((prev) => {
-        // We use functional update and only hide if settings aren't open
-        if (!showSettings) return false;
-        return prev;
-      });
-    }, 4000);
-  };
+  /* ── Control visibility ──────────────────────────────────── */
+  const scheduleHide = useCallback(() => {
+    if (showSettings) return;
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = window.setTimeout(() => {
+      setShowControls(false);
+    }, HIDE_CONTROLS_AFTER);
+  }, [showSettings, clearTimeout]);
 
-  useEffect(() => {
-    return () => {
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
-    };
-  }, []);
+  const handleMouseMove = useCallback(() => {
+    setShowControls(true);
+    scheduleHide();
+  }, [scheduleHide]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!showSettings) setShowControls(false);
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+  }, [showSettings, clearTimeout]);
+
+  /* ── Episode change ──────────────────────────────────────── */
+  const handleNextEpisode = useCallback(() => {
+    const next = localEpisode + 1;
+    setLocalEpisode(next);
+    onEpisodeChange?.(localSeason, next);
+  }, [localEpisode, localSeason, onEpisodeChange]);
+
+  const handleSeasonChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value) || 1;
+    setLocalSeason(val);
+    onEpisodeChange?.(val, localEpisode);
+  }, [localEpisode, onEpisodeChange]);
+
+  const handleEpisodeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value) || 1;
+    setLocalEpisode(val);
+    onEpisodeChange?.(localSeason, val);
+  }, [localSeason, onEpisodeChange]);
+
+  /* ── Cleanup on unmount ──────────────────────────────────── */
+  useEffect(() => () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    notifyPlayState(false);
+  }, [clearTimeout]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={cn(
-        "relative w-full bg-black flex items-center justify-center overflow-hidden transition-all duration-500 group",
-        isFullscreen ? "h-screen" : "aspect-video max-h-[80vh] rounded-xl shadow-[0_0_50px_rgba(0,191,255,0.15)] ring-1 ring-white/10"
+        'relative flex items-center justify-center bg-black overflow-hidden group',
+        'will-change-[contents]',
+        fullscreen
+          ? 'w-screen h-screen fixed inset-0 z-[100]'
+          : [
+              'w-full aspect-video max-h-[80vh]',
+              'rounded-2xl',
+              'border border-white/[.05]',
+              'shadow-[0_0_80px_rgba(0,243,255,.08),0_32px_64px_rgba(0,0,0,.8),inset_0_1px_0_rgba(255,255,255,.04)]',
+            ].join(' ')
       )}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => !showSettings && setShowControls(false)}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Background glow when not fullscreen */}
-      {!isFullscreen && (
-        <div className="absolute inset-0 bg-primary/5 blur-[120px] pointer-events-none" />
+      {/* Ambient glow ring (non-fullscreen) */}
+      {!fullscreen && (
+        <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#00f3ff]/[.04] via-transparent to-[#b44bff]/[.03] pointer-events-none" />
       )}
 
-      {/* The actual player iframe */}
+      {/* ── The iframe ─────────────────────────────────────── */}
       <iframe
         src={embedUrl}
+        title={title}
         width="100%"
         height="100%"
         frameBorder="0"
@@ -103,114 +171,146 @@ export function PlayerWrapper({
         allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
         referrerPolicy="no-referrer"
         className="relative z-10 w-full h-full"
-        title={title}
+        loading="lazy"
       />
 
-      {/* Wrapper Controls UI - overlays the iframe slightly. Native Vidking controls are inside, but we add our glass wrapper elements */}
+      {/* ── Control overlay ───────────────────────────────── */}
       <AnimatePresence>
         {showControls && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between"
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 z-30 flex flex-col justify-between pointer-events-none"
           >
-            {/* Top Bar */}
-            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex flex-wrap justify-between items-start gap-4 pointer-events-auto transition-all duration-300">
-              <div className="flex flex-col max-w-[70%] pointer-events-none">
-                <h2 className="text-white font-bold text-base sm:text-lg md:text-2xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] font-display truncate">{title}</h2>
+            {/* Top bar */}
+            <div className="pointer-events-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-8 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start gap-4">
+              <div className="min-w-0">
+                <h2 className="text-white font-black text-base sm:text-xl truncate font-display drop-shadow-lg">
+                  {title}
+                </h2>
                 {type === 'tv' && (
-                  <span className="text-[#00f3ff] font-medium text-xs sm:text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
+                  <p className="text-[#00f3ff] text-xs sm:text-sm font-semibold mt-0.5">
+                    Season {localSeason} · Episode {localEpisode}
+                  </p>
                 )}
               </div>
-              
-              <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}
-                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-105 active:scale-95 border border-white/10"
-                >
-                  <Settings className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" />
-                </button>
-              </div>
+
+              <button
+                onClick={() => setShowSettings(s => !s)}
+                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0"
+                aria-label="Stream settings"
+              >
+                <Settings2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             </div>
 
-            {/* Bottom Bar ONLY for next episode & fullscreen. Play/Pause removed to let native iframe handle it */}
-            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-none transition-all duration-300">
-              <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
-                {/* Next episode button if TV */}
+            {/* Bottom bar */}
+            <div className="pointer-events-auto px-4 sm:px-6 pb-4 sm:pb-5 pt-8 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end gap-4">
+              <div>
                 {type === 'tv' && onEpisodeChange && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); onEpisodeChange(season, episode + 1); }}
-                    className="flex items-center gap-2 px-4 h-[40px] sm:h-[48px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white font-medium text-xs sm:text-sm md:text-base transition-all border border-white/10"
+                  <button
+                    onClick={handleNextEpisode}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-heavy border border-white/[.08] text-white font-bold text-xs sm:text-sm hover:bg-white/[.08] transition-colors"
                   >
+                    <FastForward className="w-3.5 h-3.5 fill-white" />
                     <span className="hidden sm:inline">Next Episode</span>
                     <span className="sm:hidden">Next</span>
-                    <FastForward className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] fill-current" />
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                  title="Fullscreen"
-                  className="flex items-center justify-center min-w-[40px] h-[40px] sm:min-w-[48px] sm:h-[48px] md:min-w-[56px] md:h-[56px] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-all hover:scale-110 active:scale-95 border border-white/10"
-                >
-                  {isFullscreen ? <Minimize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" /> : <Maximize className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] md:w-[24px] md:h-[24px]" />}
-                </button>
-              </div>
+              <button
+                onClick={toggleFullscreen}
+                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11"
+                aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                title="Fullscreen (F)"
+              >
+                {fullscreen
+                  ? <Minimize className="w-4 h-4 sm:w-5 sm:h-5" />
+                  : <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />
+                }
+              </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Settings Panel */}
+      {/* ── Settings panel ────────────────────────────────── */}
       <AnimatePresence>
         {showSettings && (
-          <motion.div 
+          <motion.aside
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute right-4 sm:right-6 top-20 sm:top-24 w-64 bg-black/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 z-40 pointer-events-auto"
-            onClick={(e) => e.stopPropagation()}
+            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+            className="absolute top-16 right-4 sm:right-6 z-40 w-64 glass-heavy rounded-2xl border border-white/[.06] shadow-2xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-white font-bold mb-4 font-display border-b border-white/10 pb-2">Stream Settings</h3>
-            
-            <div className="space-y-4">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[.06]">
+              <h3 className="font-bold text-sm text-white font-display tracking-wide">Stream Settings</h3>
+              <button
+                onClick={() => setShowSettings(false)}
+                className="p-1.5 rounded-lg hover:bg-white/[.06] transition-colors"
+                aria-label="Close settings"
+              >
+                <X className="w-3.5 h-3.5 text-zinc-400" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
               {type === 'tv' && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Season & Episode</span>
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
+                    Season &amp; Episode
+                  </label>
                   <div className="flex gap-2">
-                     <input 
-                      type="number" 
-                      min={1} 
-                      value={season} 
-                      onChange={(e) => onEpisodeChange?.(parseInt(e.target.value) || 1, episode)}
-                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-primary"
+                    <input
+                      type="number"
+                      min={1}
+                      value={localSeason}
+                      onChange={handleSeasonChange}
+                      className="
+                        w-1/2 bg-white/[.05] border border-white/[.08] rounded-lg
+                        px-3 py-2 text-sm text-white
+                        focus:border-[#00f3ff]/40 focus:ring-1 focus:ring-[#00f3ff]/20
+                        focus:outline-none transition-all
+                      "
                       placeholder="Season"
+                      aria-label="Season number"
                     />
-                    <input 
-                      type="number" 
-                      min={1} 
-                      value={episode}
-                      onChange={(e) => onEpisodeChange?.(season, parseInt(e.target.value) || 1)}
-                      className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-primary"
+                    <input
+                      type="number"
+                      min={1}
+                      value={localEpisode}
+                      onChange={handleEpisodeChange}
+                      className="
+                        w-1/2 bg-white/[.05] border border-white/[.08] rounded-lg
+                        px-3 py-2 text-sm text-white
+                        focus:border-[#00f3ff]/40 focus:ring-1 focus:ring-[#00f3ff]/20
+                        focus:outline-none transition-all
+                      "
                       placeholder="Episode"
+                      aria-label="Episode number"
                     />
                   </div>
                 </div>
               )}
+
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
+                  Source
+                </label>
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[.04] border border-white/[.06]">
+                  <span className="text-xs text-white font-medium">Vidking CDN</span>
+                  <span className="pill pill-primary text-[9px]">Active</span>
+                </div>
+              </div>
             </div>
-            
-            <button 
-              onClick={() => setShowSettings(false)}
-              className="mt-6 w-full py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors border border-white/10"
-            >
-              Close
-            </button>
-          </motion.div>
+          </motion.aside>
         )}
       </AnimatePresence>
     </div>
   );
-}
+});

@@ -1,58 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* ─── Premium font imports ──────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@import "./styles/glass-system.css";
 
+/* ─── Theme overrides ───────────────────────────────────── */
 @theme {
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-primary: #00f3ff; 
-  --color-accent-purple: #00f3ff;
-  --color-surface: #0a0a0a;
-  
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
-  
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
+  --color-background:    #000000;
+  --color-foreground:    #ffffff;
+  --color-primary:       #00f3ff;
+  --color-accent-purple: #b44bff;
+  --color-surface:       #060810;
+
+  --font-sans:    'DM Sans',      ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bebas Neue',   'DM Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 }
 
+/* ─── Global base ───────────────────────────────────────── */
 @layer base {
+  html {
+    text-rendering: optimizeLegibility;
+  }
+
   body {
-    @apply bg-background text-white font-sans antialiased overflow-x-hidden selection:bg-primary/30;
+    @apply bg-black text-white antialiased overflow-x-hidden;
+    font-family: var(--font-sans);
   }
 
   h1, h2, h3, h4 {
-    @apply font-display;
+    font-family: var(--font-display);
   }
 }
 
+/* ─── Tailwind-compatible utilities ─────────────────────── */
 .bg-mesh {
-  background-color: #000000;
-  background-image: radial-gradient(at 80% 0%, hsla(180, 100%, 50%, 0.05) 0px, transparent 50%),
-                    radial-gradient(at 0% 50%, hsla(180, 100%, 50%, 0.03) 0px, transparent 50%),
-                    radial-gradient(at 80% 100%, hsla(180, 100%, 50%, 0.05) 0px, transparent 50%);
-}
-
-.glass-panel {
-  @apply bg-black/40 backdrop-blur-3xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  background-color: #000;
+  background-image:
+    radial-gradient(at 75% 0%,  rgba(0,243,255,.06) 0px, transparent 50%),
+    radial-gradient(at 0%  60%, rgba(0,243,255,.03) 0px, transparent 50%),
+    radial-gradient(at 90% 100%,rgba(180,75,255,.04)0px, transparent 50%);
 }
 
 .text-glow {
-  text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+  text-shadow: 0 0 20px rgba(0,243,255,.5);
 }
 
 .accent-glow {
-  box-shadow: 0 0 40px rgba(0, 243, 255, 0.15);
-}
-
-.mask-fade-t {
-  mask-image: linear-gradient(to top, black 50%, transparent);
+  box-shadow: 0 0 40px rgba(0,243,255,.15);
 }
 
 .mask-fade-x {
-  mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.mask-fade-t {
+  mask-image: linear-gradient(to top, #000 50%, transparent);
+  -webkit-mask-image: linear-gradient(to top, #000 50%, transparent);
 }
 
+/* Scrollbar hide */
+.scrollbar-hide            { scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* ─── Upgrade: remove old layout jank ──────────────────── */
+img, video { max-width: 100%; display: block; }
+
+/* Prevent invisible focus rings on touch */
+@media (hover: none) {
+  :focus:not(:focus-visible) { outline: none; }
+}
+
+/* iOS safe area */
+.pt-safe { padding-top: env(safe-area-inset-top, 0); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0); }
