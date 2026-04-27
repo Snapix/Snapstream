@@ -51,15 +51,15 @@ export function Watch() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0F1F]">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,191,255,0.5)]" />
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,243,255,0.5)]" />
       </div>
     );
   }
 
   if (!details) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0F1F] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <h2 className="font-display text-2xl font-bold">Content not found</h2>
       </div>
     );
@@ -75,7 +75,7 @@ export function Watch() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-[#0A0F1F]"
+      className="min-h-screen bg-black"
     >
       {/* Immersive Overlay Back Button */}
       <div className="fixed top-24 left-8 z-50 pointer-events-auto">
@@ -149,7 +149,7 @@ export function Watch() {
                 onClick={() => { setSeason(s.season_number); setEpisode(1); }}
                 className={`px-6 py-2 rounded-full font-semibold border transition-all shrink-0 ${
                   season === s.season_number 
-                    ? 'bg-primary text-white border-primary shadow-[0_0_15px_rgba(0,191,255,0.4)]' 
+                    ? 'bg-primary text-black border-primary shadow-[0_0_15px_rgba(0,243,255,0.4)]' 
                     : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
                 }`}
               >
@@ -172,8 +172,8 @@ export function Watch() {
                   onClick={() => { setEpisode(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   className={`group flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${
                     episode === i + 1
-                      ? 'bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(0,191,255,0.2)] scale-[1.02]'
-                      : 'bg-[#0F1629] border-white/5 text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20'
+                      ? 'bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(0,243,255,0.2)] scale-[1.02]'
+                      : 'bg-black/50 border-white/5 text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20'
                   }`}
                 >
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 mb-3 group-hover:scale-110 transition-transform">

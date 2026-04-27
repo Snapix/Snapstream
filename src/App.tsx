@@ -15,7 +15,6 @@ import { AboutModal } from './components/AboutModal';
 import { useState, useEffect } from 'react';
 
 import { ClickSpark } from './components/ClickSpark';
-import { ShadowOverlay } from './components/ShadowOverlay';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,14 +37,8 @@ export default function App() {
 
   return (
     <Router>
-      <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden">
-        <ShadowOverlay 
-          sizing="fill" 
-          color="#0A0F1F" 
-          animation={{ scale: 30, speed: 50 }} 
-          noise={{ opacity: 0.1, scale: 1 }}
-        />
-        <ClickSpark sparkColor="#ffffff" sparkCount={12} sparkSize={15}>
+      <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
+        <ClickSpark sparkColor="#00f3ff" sparkCount={12} sparkSize={15}>
           <AnimatePresence>
             {showSplash && (
               <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -66,7 +59,7 @@ export default function App() {
               <p className="mb-4">© {new Date().getFullYear()} Infinite streaming for cinematic souls. Educational build.</p>
               <button 
                 onClick={() => setIsAboutOpen(true)}
-                className="px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 hover:text-white transition-all duration-300"
+                className="px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 hover:text-white transition-all duration-300 shadow-[0_0_15px_rgba(0,243,255,0.1)] hover:shadow-[0_0_20px_rgba(0,243,255,0.3)]"
               >
                 About Creator
               </button>

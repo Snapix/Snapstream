@@ -109,7 +109,7 @@ export function Home() {
       <HeroBanner movies={trending.slice(0, 10)} />
 
       {/* Sticky Content Filters */}
-      <div className="sticky top-16 sm:top-20 z-40 bg-[#0A0F1F]/80 backdrop-blur-xl border-y border-white/5 py-3 mb-8 -mt-8 sm:-mt-12 overflow-hidden shadow-lg">
+      <div className="sticky top-16 sm:top-20 z-40 bg-black/80 backdrop-blur-xl border-y border-white/5 py-3 mb-8 -mt-8 sm:-mt-12 overflow-hidden shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-1 mask-fade-x">
             {FILTERS.map(filter => (
@@ -118,7 +118,7 @@ export function Home() {
                 onClick={() => setActiveFilter(filter)}
                 className={`flex-shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
                   activeFilter === filter 
-                    ? 'bg-primary text-white shadow-[0_0_15px_rgba(0,191,255,0.4)] border border-primary/50' 
+                    ? 'bg-primary text-black shadow-[0_0_15px_rgba(0,243,255,0.4)] border border-primary/50' 
                     : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5'
                 }`}
               >

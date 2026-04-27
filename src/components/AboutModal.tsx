@@ -36,9 +36,14 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             </button>
 
             <div className="p-8 flex flex-col items-center text-center mt-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/10 shadow-[0_0_30px_rgba(0,191,255,0.3)] mb-6 bg-black/50 relative flex items-center justify-center">
-                <img src="/profile.jpeg" alt="Creator: Snappy - Girish" className="w-full h-full object-cover z-10" onError={(e) => e.currentTarget.style.display = 'none'} />
-                <div className="absolute inset-0 bg-primary/20 blur-md" />
+              <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.3)] mb-6 bg-black/50 relative flex items-center justify-center group">
+                <img 
+                  src="https://ui-avatars.com/api/?name=Girish+Sundaram&background=000&color=00f3ff&size=200&bold=true" 
+                  alt="Creator: Snappy - Girish" 
+                  className="w-full h-full object-cover z-10 transition-transform duration-500 group-hover:scale-110" 
+                  onError={(e) => e.currentTarget.src = "https://ui-avatars.com/api/?name=G+S&background=000&color=00f3ff"} 
+                />
+                <div className="absolute inset-0 bg-[#00f3ff]/20 blur-md pointer-events-none" />
               </div>
               
               <h2 className="text-2xl font-bold text-white mb-2 font-display">Creator: Snappy - Girish</h2>

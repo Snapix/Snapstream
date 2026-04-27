@@ -40,9 +40,6 @@ export function Navbar() {
         {/* Left: Logo and Nav */}
         <div className="flex items-center gap-10 justify-start">
           <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center transition-transform duration-500 shadow-[0_0_20px_rgba(0,191,255,0.4)] bg-black/50 border border-white/5">
-              <PlayCircle className="w-6 h-6 text-primary fill-current drop-shadow-lg" />
-            </div>
             <span className="text-2xl sm:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple font-display italic uppercase group-hover:text-glow transition-all">
               SnapStream
             </span>
@@ -83,8 +80,12 @@ export function Navbar() {
 
         {/* Right: Actions/Profile */}
         <div className="flex items-center justify-end gap-4 sm:gap-6">
-           <button className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-primary transition-colors">
-              <img src="/profile.jpeg" alt="Profile" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display='none'; }}/>
+           <button className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-primary transition-colors shadow-[0_0_10px_rgba(0,243,255,0.1)]">
+              <img 
+                src="https://ui-avatars.com/api/?name=G+S&background=000&color=00f3ff&size=100&bold=true" 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
+              />
            </button>
         </div>
       </div>
