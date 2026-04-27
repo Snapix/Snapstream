@@ -33,7 +33,7 @@ export function HeroBanner({ movies, movie }: HeroBannerProps) {
 
   if (displayMovies.length === 0) {
     return (
-      <div className="w-full h-[60vh] sm:h-[80vh] bg-[#0A0F1F] animate-pulse flex items-center justify-center">
+      <div className="w-full h-[60vh] sm:h-[80vh] bg-black animate-pulse flex items-center justify-center">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -59,8 +59,8 @@ export function HeroBanner({ movies, movie }: HeroBannerProps) {
           />
           
           {/* Lighter gradients to blend with background while keeping poster visible */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0F1F]/90 via-[#0A0F1F]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1F] via-[#0A0F1F]/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
         </motion.div>
       </AnimatePresence>
 
@@ -107,7 +107,7 @@ export function HeroBanner({ movies, movie }: HeroBannerProps) {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 bg-white/20 backdrop-blur-md text-white px-8 py-3 rounded-md font-bold hover:bg-white/30 transition-colors"
+                className="flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 text-white px-8 py-3 rounded-md font-bold hover:bg-white/20 hover:border-primary transition-all shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
               >
                 <Info className="w-5 h-5 sm:w-6 sm:h-6" />
                 More Info

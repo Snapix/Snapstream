@@ -36,10 +36,10 @@ export function Navbar() {
         isScrolled ? "bg-black/80 backdrop-blur-md shadow-lg" : "bg-gradient-to-b from-black/80 to-transparent"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 grid grid-cols-3 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
         {/* Left: Logo and Nav */}
-        <div className="flex items-center gap-10 justify-start">
-          <Link to="/" className="flex items-center gap-3 group transition-transform hover:scale-105 active:scale-95">
+        <div className="flex items-center gap-6 lg:gap-10 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 group transition-transform hover:scale-105 active:scale-95">
             <span className="text-2xl sm:text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple font-display italic uppercase group-hover:text-glow transition-all">
               SnapStream
             </span>
@@ -62,7 +62,7 @@ export function Navbar() {
         </div>
 
         {/* Center: Search */}
-        <div className="flex justify-center w-full max-w-lg mx-auto">
+        <div className="flex justify-center flex-1 max-w-md mx-auto">
           <form
              onSubmit={handleSearch}
              className="relative flex items-center w-full"
@@ -79,7 +79,7 @@ export function Navbar() {
         </div>
 
         {/* Right: Actions/Profile */}
-        <div className="flex items-center justify-end gap-4 sm:gap-6">
+        <div className="flex items-center justify-end flex-shrink-0">
            <button className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-primary transition-colors shadow-[0_0_10px_rgba(0,243,255,0.1)]">
               <img 
                 src="https://ui-avatars.com/api/?name=G+S&background=000&color=00f3ff&size=100&bold=true" 

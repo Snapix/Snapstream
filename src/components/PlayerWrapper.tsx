@@ -21,8 +21,9 @@ export function PlayerWrapper({
   onEpisodeChange 
 }: PlayerWrapperProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(false); // only show top/bottom occasionally or on hover
+  const [showControls, setShowControls] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   
   // Handle Fullscreen
@@ -59,16 +60,23 @@ export function PlayerWrapper({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  let hideTimeout: NodeJS.Timeout;
   const handleMouseMove = () => {
-    setShowControls(true);
-    clearTimeout(hideTimeout);
-    hideTimeout = setTimeout(() => {
-      if (!showSettings) {
-        setShowControls(false);
-      }
+    if (!showControls) setShowControls(true);
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    hideTimeoutRef.current = setTimeout(() => {
+      setShowControls((prev) => {
+        // We use functional update and only hide if settings aren't open
+        if (!showSettings) return false;
+        return prev;
+      });
     }, 4000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <div 
@@ -108,11 +116,11 @@ export function PlayerWrapper({
             className="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between"
           >
             {/* Top Bar */}
-            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-b from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-start gap-4 pointer-events-auto transition-all duration-300">
+            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-b from-black/80 to-transparent flex flex-wrap justify-between items-start gap-4 pointer-events-auto transition-all duration-300">
               <div className="flex flex-col max-w-[70%] pointer-events-none">
-                <h2 className="text-white font-bold text-base sm:text-lg md:text-2xl drop-shadow-lg font-display truncate">{title}</h2>
+                <h2 className="text-white font-bold text-base sm:text-lg md:text-2xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] font-display truncate">{title}</h2>
                 {type === 'tv' && (
-                  <span className="text-primary font-medium text-xs sm:text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
+                  <span className="text-[#00f3ff] font-medium text-xs sm:text-sm drop-shadow-md">Season {season} • Episode {episode}</span>
                 )}
               </div>
               
@@ -127,7 +135,7 @@ export function PlayerWrapper({
             </div>
 
             {/* Bottom Bar ONLY for next episode & fullscreen. Play/Pause removed to let native iframe handle it */}
-            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-none transition-all duration-300">
+            <div className="w-full p-3 sm:p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent flex flex-wrap justify-between items-end gap-4 pointer-events-none transition-all duration-300">
               <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
                 {/* Next episode button if TV */}
                 {type === 'tv' && onEpisodeChange && (

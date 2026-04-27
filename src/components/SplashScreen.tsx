@@ -41,7 +41,15 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
             className="absolute inset-0 bg-[#00f3ff] rounded-full blur-[200px] pointer-events-none"
           />
           
-          <div className="relative w-full max-w-xs px-6">
+          <div className="relative w-full max-w-xs px-6 flex flex-col items-center">
+            <motion.h1
+              initial={{ scale: 0.8, opacity: 0, letterSpacing: "1em" }}
+              animate={{ scale: 1, opacity: 1, letterSpacing: "0.1em" }}
+              transition={{ duration: 1.5, ease: "circOut" }}
+              className="text-4xl sm:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-primary to-accent-purple drop-shadow-[0_0_30px_rgba(0,243,255,0.5)] italic uppercase mb-12"
+            >
+              SnapStream
+            </motion.h1>
             {/* Progress Bar Container */}
             <div className="w-full space-y-2">
               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,255,255,0.05)] border border-white/5">

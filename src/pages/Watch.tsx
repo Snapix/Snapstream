@@ -75,10 +75,10 @@ export function Watch() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-black"
+      className="min-h-screen bg-black pt-20 sm:pt-24"
     >
       {/* Immersive Overlay Back Button */}
-      <div className="fixed top-24 left-8 z-50 pointer-events-auto">
+      <div className="absolute top-4 sm:top-6 left-4 sm:left-8 z-40">
         <button 
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group shadow-xl"
