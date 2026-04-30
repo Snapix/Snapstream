@@ -14,6 +14,9 @@ import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
 import { useState, useEffect } from 'react';
 
+import { SmoothCursor } from './components/ui/smooth-cursor';
+import { Dock, DockIcon } from './components/ui/dock';
+import { Home as HomeIcon, Film, Tv, Search as SearchIcon, Settings } from 'lucide-react';
 import { ClickSpark } from './components/ClickSpark';
 
 function AnimatedRoutes() {
@@ -39,6 +42,7 @@ export default function App() {
     <Router>
       <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
         <ClickSpark sparkColor="#00f3ff" sparkCount={12} sparkSize={15}>
+          <SmoothCursor />
           <AnimatePresence>
             {showSplash && (
               <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -47,7 +51,7 @@ export default function App() {
           
           <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
-          <div className="relative z-10 flex flex-col flex-1">
+          <div className="relative z-10 flex flex-col flex-1 pb-[80px]">
             <Navbar />
             <main className="flex-1">
               <AnimatedRoutes />
@@ -64,6 +68,35 @@ export default function App() {
                 About Creator
               </button>
             </footer>
+
+            {/* Bottom floating Dock */}
+            <div className="fixed bottom-4 left-0 right-0 z-[100] pointer-events-none flex justify-center">
+              <div className="pointer-events-auto">
+                <Dock 
+                  direction="middle" 
+                  className="bg-black/40 border-white/10 dark:bg-black/40 backdrop-blur-xl supports-backdrop-blur:bg-black/40 supports-backdrop-blur:dark:bg-black/40 shadow-[0_8px_32px_rgba(0,243,255,0.15)]"
+                  iconSize={48}
+                  iconMagnification={64}
+                >
+                  <DockIcon onClick={() => window.location.href = '/'}>
+                    <HomeIcon className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                  </DockIcon>
+                  <DockIcon onClick={() => window.location.href = '/?filter=Movies'}>
+                    <Film className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                  </DockIcon>
+                  <DockIcon onClick={() => window.location.href = '/?filter=TV+Shows'}>
+                    <Tv className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                  </DockIcon>
+                  <DockIcon onClick={() => window.location.href = '/search'}>
+                    <SearchIcon className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                  </DockIcon>
+                  <DockIcon onClick={() => setIsAboutOpen(true)}>
+                    <Settings className="w-5 h-5 text-zinc-300 group-hover:text-white" />
+                  </DockIcon>
+                </Dock>
+              </div>
+            </div>
+
           </div>
         </ClickSpark>
       </div>

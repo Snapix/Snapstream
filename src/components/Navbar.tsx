@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, X, Bell, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { AuroraText } from './ui/aurora-text';
 import { useDebounce } from '../hooks/performance';
 
 const NAV_LINKS = [
@@ -96,22 +97,12 @@ export const Navbar = memo(function Navbar() {
           {/* ── Logo ─────────────────────────────────────── */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 flex-shrink-0 group"
+            className="flex items-center flex-shrink-0 group"
             aria-label="SnapStream Home"
           >
-            {/* Logo mark */}
-            <div className="relative w-8 h-8 flex-shrink-0">
-              <div className="absolute inset-0 rounded-lg bg-[#00f3ff]/15 blur-md group-hover:bg-[#00f3ff]/25 transition-colors" />
-              <div className="relative w-full h-full rounded-lg bg-gradient-to-br from-[#00f3ff]/30 to-[#00f3ff]/5 border border-[#00f3ff]/20 flex items-center justify-center">
-                <svg viewBox="0 0 20 20" className="w-4 h-4 fill-[#00f3ff] drop-shadow-[0_0_6px_#00f3ff]" aria-hidden>
-                  <polygon points="4,2 16,10 4,18" />
-                </svg>
-              </div>
-            </div>
-
-            <span className="text-xl sm:text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-white via-[#00f3ff] to-white/70 font-display italic uppercase hidden sm:block group-hover:drop-shadow-[0_0_12px_rgba(0,243,255,.5)] transition-all">
+            <AuroraText className="text-xl sm:text-3xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
               SnapStream
-            </span>
+            </AuroraText>
           </Link>
 
           {/* ── Nav links (desktop) ───────────────────────── */}
@@ -192,9 +183,10 @@ export const Navbar = memo(function Navbar() {
               aria-label="Profile menu"
             >
               <img
-                src="https://ui-avatars.com/api/?name=G+S&background=040812&color=00f3ff&size=80&bold=true&format=svg"
+                src="/profile.jpeg"
                 alt="Profile"
                 className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=G+S&background=040812&color=00f3ff&size=80&bold=true&format=svg"; }}
               />
             </button>
           </div>

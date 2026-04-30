@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Media } from '../services/tmdb';
 import { MovieCard } from './MovieCard';
 import { FadeContent } from './FadeContent';
+import { AnimatedGradientText } from './ui/animated-gradient-text';
 
 interface MovieRowProps {
   title:   string;
@@ -57,7 +58,11 @@ export const MovieRow = memo(function MovieRow({ title, movies, isLarge = false 
               boxShadow: isLive ? '0 0 8px rgba(255,50,50,.5)' : undefined,
             }}
           />
-          {title}
+          {isLive || isContinue ? (
+            <AnimatedGradientText colorFrom={isContinue ? "#00f3ff" : "#ff4444"} colorTo={isContinue ? "#b44bff" : "#ff8800"}>
+              {title}
+            </AnimatedGradientText>
+          ) : title}
           {isLive && (
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse flex-shrink-0" />
           )}

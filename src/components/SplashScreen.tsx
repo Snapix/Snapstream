@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { AuroraText } from './ui/aurora-text';
+import { Particles } from './ui/particles';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -69,12 +71,18 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             }}
           />
 
+          <Particles
+            className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
+            quantity={80}
+            color="#ffffff"
+          />
+
           {/* ── Logo mark ────────────────────────────────────── */}
           <motion.div
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
-            className="relative mb-10 flex flex-col items-center"
+            className="relative mb-10 flex flex-col items-center z-10"
           >
             {/* Glow ring */}
             <motion.div
@@ -84,39 +92,19 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               style={{ background: 'radial-gradient(circle, rgba(0,243,255,.15) 0%, transparent 70%)' }}
             />
 
-            {/* Icon */}
-            <div className="relative w-20 h-20 rounded-2xl glass-card flex items-center justify-center mb-6 border-[#00f3ff]/15">
-              <svg viewBox="0 0 40 40" className="w-9 h-9" aria-hidden>
-                <defs>
-                  <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00f3ff" />
-                    <stop offset="100%" stopColor="#00aaff" />
-                  </linearGradient>
-                </defs>
-                <polygon
-                  points="8,4 32,20 8,36"
-                  fill="url(#sg)"
-                  style={{ filter: 'drop-shadow(0 0 8px rgba(0,243,255,.8))' }}
-                />
-              </svg>
-            </div>
-
             {/* Wordmark */}
-            <motion.h1
+            <motion.div
               initial={{ letterSpacing: '0.3em', opacity: 0 }}
               animate={{ letterSpacing: '0.05em', opacity: 1 }}
               transition={{ delay: 0.3, duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="text-4xl sm:text-5xl font-black text-white italic uppercase font-display"
-              style={{
-                textShadow: '0 0 40px rgba(0,243,255,.4), 0 0 80px rgba(0,243,255,.15)',
-                background: 'linear-gradient(135deg, #fff 0%, #00f3ff 50%, rgba(255,255,255,.8) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
             >
-              SnapStream
-            </motion.h1>
+              <AuroraText
+                className="text-4xl sm:text-5xl font-black text-white italic uppercase font-display drop-shadow-[0_0_20px_rgba(0,243,255,0.4)]"
+                colors={["#ffffff", "#00f3ff", "#ffffff"]}
+              >
+                SnapStream
+              </AuroraText>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0 }}
@@ -136,7 +124,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             className="relative w-48 sm:w-64"
           >
             {/* Track */}
-            <div className="h-px w-full bg-white/[.06] rounded-full overflow-hidden">
+            <div className="h-0.5 w-full bg-white/[.06] rounded-full overflow-hidden mt-6">
               <motion.div
                 className="h-full rounded-full"
                 style={{
@@ -146,16 +134,6 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
                 }}
                 transition={{ duration: 0.05, ease: 'linear' }}
               />
-            </div>
-
-            {/* Percentage */}
-            <div className="mt-3 flex justify-between items-center">
-              <span className="text-[10px] font-bold text-zinc-600 tracking-widest uppercase">
-                {phase === 'done' ? 'Ready' : 'Loading'}
-              </span>
-              <span className="text-[10px] font-bold text-[#00f3ff]/60 tabular-nums">
-                {Math.round(progress * 100)}%
-              </span>
             </div>
           </motion.div>
 

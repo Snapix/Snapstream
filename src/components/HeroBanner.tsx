@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { Play, Plus, ChevronDown, Star } from 'lucide-react';
 import { Media } from '../services/tmdb';
+import { Particles } from './ui/particles';
 import { TMDB_IMAGE_BASE_URL } from '../constants';
 
 interface HeroBannerProps {
@@ -112,7 +113,7 @@ export const HeroBanner = memo(function HeroBanner({ movies, movie }: HeroBanner
       </AnimatePresence>
 
       {/* ── Cinematic gradient layers ─────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none z-0">
         {/* Left fade */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/50 to-transparent" />
         {/* Bottom fade */}
@@ -123,8 +124,16 @@ export const HeroBanner = memo(function HeroBanner({ movies, movie }: HeroBanner
         <div className="absolute inset-0 bg-gradient-to-br from-[#00f3ff]/[.03] to-transparent" />
       </div>
 
+      <Particles
+        className="absolute inset-0 z-0 opacity-40 mix-blend-screen"
+        quantity={60}
+        ease={80}
+        color="#ffffff"
+        refresh
+      />
+
       {/* ── Main content ─────────────────────────────────── */}
-      <div className="relative h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 flex flex-col justify-end pb-14 sm:pb-20">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 flex flex-col justify-end pb-14 sm:pb-20">
 
         <AnimatePresence mode="wait">
           <motion.div

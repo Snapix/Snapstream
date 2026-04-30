@@ -147,9 +147,9 @@ export const PlayerWrapper = memo(function PlayerWrapper({
           ? 'w-screen h-screen fixed inset-0 z-[100]'
           : [
               'w-full aspect-video max-h-[80vh]',
-              'rounded-2xl',
-              'border border-white/[.05]',
-              'shadow-[0_0_80px_rgba(0,243,255,.08),0_32px_64px_rgba(0,0,0,.8),inset_0_1px_0_rgba(255,255,255,.04)]',
+              'rounded-xl sm:rounded-2xl',
+              'border border-white/[.1]',
+              'shadow-[0_0_30px_rgba(0,0,0,0.8)]',
             ].join(' ')
       )}
       onMouseMove={handleMouseMove}
@@ -185,7 +185,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
             className="absolute inset-0 z-30 flex flex-col justify-between pointer-events-none"
           >
             {/* Top bar */}
-            <div className="pointer-events-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-8 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-start gap-4">
+            <div className="pointer-events-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-8 bg-gradient-to-b from-black/50 to-transparent flex justify-between items-start gap-4">
               <div className="min-w-0">
                 <h2 className="text-white font-black text-base sm:text-xl truncate font-display drop-shadow-lg">
                   {title}

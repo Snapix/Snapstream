@@ -6,6 +6,8 @@ import { fetchMovieDetails, fetchSimilar, Media } from '../services/tmdb';
 import { MovieRow } from '../components/MovieRow';
 import { PlayerWrapper } from '../components/PlayerWrapper';
 import { BlurText } from '../components/BlurText';
+import { NeonGradientCard } from '../components/ui/neon-gradient-card';
+import { Particles } from '../components/ui/particles';
 
 export function Watch() {
   const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>();
@@ -13,6 +15,8 @@ export function Watch() {
   const [details, setDetails] = useState<Media | null>(null);
   const [similar, setSimilar] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [isPlaying, setIsPlaying] = useState(false);
   
   // Track season/episode for TV
   const [season, setSeason] = useState(1);
@@ -75,38 +79,65 @@ export function Watch() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-black pt-20 sm:pt-24"
+      className="min-h-screen bg-black pt-24 sm:pt-28 pb-20"
     >
-      {/* Immersive Overlay Back Button */}
-      <div className="absolute top-4 sm:top-6 left-4 sm:left-8 z-40">
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 mb-6">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group shadow-xl"
+          className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group shadow-xl"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium text-sm tracking-wide uppercase">Exit Theater</span>
         </button>
       </div>
 
-      {/* Video Player Wrapper */}
-      <motion.div 
-        layoutId={`card-container-${id}`}
-        className="w-full flex justify-center py-0 sm:py-6"
-      >
-        <div className="w-full max-w-[1600px] mx-auto sm:px-6">
-          <PlayerWrapper 
-            embedUrl={embedUrl}
-            title={details.title || details.name || ''}
-            type={type || 'movie'}
-            season={season}
-            episode={episode}
-            onEpisodeChange={(s, e) => {
-              setSeason(s);
-              setEpisode(e);
-            }}
-          />
-        </div>
-      </motion.div>
+      {/* Conditional Rendering: Player vs Preview Backdrop */}
+      {isPlaying ? (
+        <motion.div 
+          layoutId={`card-container-${id}`}
+          className="w-full flex justify-center py-0 sm:py-6"
+        >
+          <div className="w-full max-w-[1600px] mx-auto sm:px-6">
+            <PlayerWrapper 
+              embedUrl={embedUrl}
+              title={details.title || details.name || ''}
+              type={type || 'movie'}
+              season={season}
+              episode={episode}
+              onEpisodeChange={(s, e) => {
+                setSeason(s);
+                setEpisode(e);
+              }}
+            />
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div 
+          layoutId={`card-container-${id}`}
+          className="relative w-full h-[50vh] sm:h-[60vh] bg-black"
+        >
+          {details.backdrop_path && (
+            <>
+              <img 
+                src={`https://image.tmdb.org/t/p/original${details.backdrop_path}`}
+                alt={details.title || details.name}
+                className="absolute inset-0 w-full h-full object-cover opacity-60"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+            </>
+          )}
+          <Particles className="absolute inset-0 z-0 opacity-50 mix-blend-screen" quantity={60} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button 
+              onClick={() => setIsPlaying(true)}
+              className="flex items-center gap-3 bg-[#00f3ff] text-black px-8 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,243,255,0.4)]"
+            >
+              <Play className="w-5 h-5 fill-black" />
+              WATCH NOW
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Details Section - Scrolled down */}
       <motion.div 
@@ -125,9 +156,21 @@ export function Watch() {
               <span className="text-zinc-400">{(details.release_date || details.first_air_date)?.split('-')[0]}</span>
               <span className="text-zinc-400 border border-zinc-700 px-2 rounded-sm bg-black/50">4K UHD</span>
             </div>
-            <p className="text-zinc-300 sm:text-lg leading-relaxed max-w-3xl drop-shadow-md">
+            <p className="text-zinc-300 sm:text-lg leading-relaxed max-w-3xl drop-shadow-md mb-8">
               {details.overview}
             </p>
+
+            {/* Server & Language Info Block */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                <div className="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse" />
+                <span className="font-semibold text-sm tracking-wide text-zinc-300">AVAILABLE SERVERS: <span className="text-white font-bold">12</span></span>
+              </div>
+              <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                <div className="w-2 h-2 rounded-full bg-[#b44bff] animate-pulse" />
+                <span className="font-semibold text-sm tracking-wide text-zinc-300">AVAILABLE LANGUAGES: <span className="text-white font-bold">8</span></span>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -138,52 +181,56 @@ export function Watch() {
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="max-w-7xl mx-auto px-6 sm:px-12 py-8 border-t border-white/5"
+          className="max-w-7xl mx-auto px-6 sm:px-12 py-8 mt-4 mb-16"
         >
-          <BlurText text="Seasons & Episodes" className="text-2xl font-bold mb-6 font-display text-glow" />
-          
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2 mask-fade-x">
-            {details.seasons.filter(s => s.season_number > 0).map(s => (
-              <button
-                key={s.season_number}
-                onClick={() => { setSeason(s.season_number); setEpisode(1); }}
-                className={`px-6 py-2 rounded-full font-semibold border transition-all shrink-0 ${
-                  season === s.season_number 
-                    ? 'bg-primary text-black border-primary shadow-[0_0_15px_rgba(0,243,255,0.4)]' 
-                    : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
+          <NeonGradientCard borderRadius={24} borderSize={2} neonColors={{ firstColor: "#b44bff", secondColor: "#00f3ff" }}>
+            <div className="p-2 sm:p-4">
+              <BlurText text="Seasons & Episodes" className="text-2xl font-bold mb-6 font-display text-glow" />
+              
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide py-2 mask-fade-x">
+                {details.seasons.filter(s => s.season_number > 0).map(s => (
+                  <button
+                    key={s.season_number}
+                    onClick={() => { setSeason(s.season_number); setEpisode(1); }}
+                    className={`px-6 py-2 rounded-full font-semibold border transition-all shrink-0 ${
+                      season === s.season_number 
+                        ? 'bg-primary text-black border-primary shadow-[0_0_15px_rgba(0,243,255,0.4)]' 
+                        : 'bg-black/50 text-zinc-400 border-white/10 hover:border-white/30 hover:text-white'
+                    }`}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={season}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-8"
-            >
-              {Array.from({ length: details.seasons.find(s => s.season_number === season)?.episode_count || 0 }).map((_, i) => (
-                <button 
-                  key={i}
-                  onClick={() => { setEpisode(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className={`group flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${
-                    episode === i + 1
-                      ? 'bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(0,243,255,0.2)] scale-[1.02]'
-                      : 'bg-black/50 border-white/5 text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20'
-                  }`}
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={season}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-8"
                 >
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 mb-3 group-hover:scale-110 transition-transform">
-                    <Play className={`w-4 h-4 translate-x-0.5 ${episode === i + 1 ? 'fill-primary text-primary' : 'fill-zinc-400 text-zinc-400 group-hover:fill-white group-hover:text-white'}`} />
-                  </div>
-                  <span className="font-display font-medium tracking-wide">Episode {i + 1}</span>
-                </button>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+                  {Array.from({ length: details.seasons.find(s => s.season_number === season)?.episode_count || 0 }).map((_, i) => (
+                    <button 
+                      key={i}
+                      onClick={() => { setEpisode(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      className={`group flex flex-col items-center justify-center p-6 rounded-2xl border transition-all ${
+                        episode === i + 1
+                          ? 'bg-primary/20 border-primary text-white shadow-[0_0_15px_rgba(0,243,255,0.2)] scale-[1.02]'
+                          : 'bg-black/50 border-white/5 text-zinc-400 hover:bg-white/10 hover:text-white hover:border-white/20'
+                      }`}
+                    >
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 mb-3 group-hover:scale-110 transition-transform">
+                        <Play className={`w-4 h-4 translate-x-0.5 ${episode === i + 1 ? 'fill-primary text-primary' : 'fill-zinc-400 text-zinc-400 group-hover:fill-white group-hover:text-white'}`} />
+                      </div>
+                      <span className="font-display font-medium tracking-wide">Episode {i + 1}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </NeonGradientCard>
         </motion.div>
       )}
 
