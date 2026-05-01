@@ -11,15 +11,11 @@ import { Search } from './pages/Search';
 import { Watch } from './pages/Watch';
 import { Settings as SettingsPage } from './pages/Settings';
 
-import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
 import { useState, useEffect } from 'react';
 
-import { SmoothCursor } from './components/ui/smooth-cursor';
-import TargetCursor from './components/ui/TargetCursor';
 import ReactBitsDock from './components/ui/ReactBitsDock';
 import { Home as HomeIcon, Film, Tv, Search as SearchIcon, Settings } from 'lucide-react';
-import { ClickSpark } from './components/ClickSpark';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,27 +34,11 @@ function AnimatedRoutes() {
 }
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   return (
     <Router>
-      <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
-        <ClickSpark sparkColor="#00f3ff" sparkCount={12} sparkSize={15}>
-          <SmoothCursor />
-          <TargetCursor
-            targetSelector=".cursor-target"
-            spinDuration={2}
-            hideDefaultCursor={false}
-            hoverDuration={0.2}
-            parallaxOn={true}
-          />
-          <AnimatePresence>
-            {showSplash && (
-              <SplashScreen onComplete={() => setShowSplash(false)} />
-            )}
-          </AnimatePresence>
-          
+      <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
           <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
           <div className="relative z-10 flex flex-col flex-1 pb-[80px]">
@@ -80,7 +60,7 @@ export default function App() {
             </footer>
 
             {/* Bottom floating Dock */}
-            <div className="fixed bottom-4 left-0 right-0 z-[100] flex justify-center cursor-target text-black dark:text-white">
+            <div className="fixed bottom-4 left-0 right-0 z-[100] flex justify-center text-black dark:text-white">
               <ReactBitsDock 
                 items={[
                   { icon: <HomeIcon className="w-5 h-5 text-zinc-300" />, label: 'Home', onClick: () => window.location.href = '/' },
@@ -97,7 +77,6 @@ export default function App() {
             </div>
 
           </div>
-        </ClickSpark>
       </div>
     </Router>
   );
