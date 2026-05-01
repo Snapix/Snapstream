@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Maximize, Minimize, Settings2, FastForward, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useSafeTimeout } from '../hooks/performance';
+import ElasticSlider from './ui/ElasticSlider';
 
 // ── Play-state subscription (for cursor / blob systems) ──────
 type PlayListener = (playing: boolean) => void;
@@ -52,6 +53,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
   const [showSettings,    setShowSettings]    = useState(false);
   const [localSeason,     setLocalSeason]     = useState(season);
   const [localEpisode,    setLocalEpisode]    = useState(episode);
+  const [volume,          setVolume]          = useState(80);
   const { set: setTimeout, clear: clearTimeout } = useSafeTimeout();
   const hideTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
@@ -199,7 +201,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
 
               <button
                 onClick={() => setShowSettings(s => !s)}
-                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0"
+                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 cursor-target pointer-events-auto"
                 aria-label="Stream settings"
               >
                 <Settings2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -212,7 +214,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
                 {type === 'tv' && onEpisodeChange && (
                   <button
                     onClick={handleNextEpisode}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-heavy border border-white/[.08] text-white font-bold text-xs sm:text-sm hover:bg-white/[.08] transition-colors"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass-heavy border border-white/[.08] text-white font-bold text-xs sm:text-sm hover:bg-white/[.08] transition-colors cursor-target pointer-events-auto"
                   >
                     <FastForward className="w-3.5 h-3.5 fill-white" />
                     <span className="hidden sm:inline">Next Episode</span>
@@ -223,7 +225,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
 
               <button
                 onClick={toggleFullscreen}
-                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11"
+                className="btn-icon btn w-10 h-10 sm:w-11 sm:h-11 cursor-target pointer-events-auto"
                 aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                 title="Fullscreen (F)"
               >
@@ -245,14 +247,14 @@ export const PlayerWrapper = memo(function PlayerWrapper({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className="absolute top-16 right-4 sm:right-6 z-40 w-64 glass-heavy rounded-2xl border border-white/[.06] shadow-2xl overflow-hidden"
+            className="absolute top-16 right-4 sm:right-6 z-40 w-72 bg-black/90 backdrop-blur-3xl rounded-2xl border border-white/[.1] shadow-2xl overflow-hidden pointer-events-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[.06]">
               <h3 className="font-bold text-sm text-white font-display tracking-wide">Stream Settings</h3>
               <button
                 onClick={() => setShowSettings(false)}
-                className="p-1.5 rounded-lg hover:bg-white/[.06] transition-colors"
+                className="p-1.5 rounded-lg hover:bg-white/[.06] transition-colors cursor-target"
                 aria-label="Close settings"
               >
                 <X className="w-3.5 h-3.5 text-zinc-400" />
@@ -260,6 +262,22 @@ export const PlayerWrapper = memo(function PlayerWrapper({
             </div>
 
             <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-4">
+                  Audio Volume
+                </label>
+                <div className="px-2">
+                  <ElasticSlider
+                    defaultValue={volume}
+                    startingValue={0}
+                    maxValue={100}
+                    isStepped={true}
+                    stepSize={1}
+                    onChange={(val: number) => setVolume(val)}
+                  />
+                </div>
+              </div>
+
               {type === 'tv' && (
                 <div>
                   <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">
@@ -275,7 +293,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
                         w-1/2 bg-white/[.05] border border-white/[.08] rounded-lg
                         px-3 py-2 text-sm text-white
                         focus:border-[#00f3ff]/40 focus:ring-1 focus:ring-[#00f3ff]/20
-                        focus:outline-none transition-all
+                        focus:outline-none transition-all cursor-target
                       "
                       placeholder="Season"
                       aria-label="Season number"
@@ -289,7 +307,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
                         w-1/2 bg-white/[.05] border border-white/[.08] rounded-lg
                         px-3 py-2 text-sm text-white
                         focus:border-[#00f3ff]/40 focus:ring-1 focus:ring-[#00f3ff]/20
-                        focus:outline-none transition-all
+                        focus:outline-none transition-all cursor-target
                       "
                       placeholder="Episode"
                       aria-label="Episode number"

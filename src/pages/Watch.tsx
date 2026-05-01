@@ -8,6 +8,8 @@ import { PlayerWrapper } from '../components/PlayerWrapper';
 import { BlurText } from '../components/BlurText';
 import { NeonGradientCard } from '../components/ui/neon-gradient-card';
 import { Particles } from '../components/ui/particles';
+import Magnet from '../components/ui/Magnet';
+import LightRays from '../components/ui/LightRays';
 
 export function Watch() {
   const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>();
@@ -127,14 +129,27 @@ export function Watch() {
             </>
           )}
           <Particles className="absolute inset-0 z-0 opacity-50 mix-blend-screen" quantity={60} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <LightRays 
+               raysOrigin="top-center"
+               raysColor="#00f3ff"
+               lightSpread={0.8}
+               rayLength={1.5}
+               pulsating={true}
+               followMouse={false}
+               className="opacity-50 mix-blend-screen"
+            />
+          </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <button 
-              onClick={() => setIsPlaying(true)}
-              className="flex items-center gap-3 bg-[#00f3ff] text-black px-8 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,243,255,0.4)]"
-            >
-              <Play className="w-5 h-5 fill-black" />
-              WATCH NOW
-            </button>
+            <Magnet padding={50} magnetStrength={3} disabled={false}>
+              <button 
+                onClick={() => setIsPlaying(true)}
+                className="flex items-center gap-3 bg-[#00f3ff] text-black px-8 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,243,255,0.4)] cursor-target pointer-events-auto"
+              >
+                <Play className="w-5 h-5 fill-black" />
+                WATCH NOW
+              </button>
+            </Magnet>
           </div>
         </motion.div>
       )}

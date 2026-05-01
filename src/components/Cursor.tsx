@@ -42,9 +42,10 @@ export function Cursor() {
   }, [mouseX, mouseY]);
 
   useEffect(() => {
-    return subscribeToPlayState((isPlaying) => {
+    const unsub = subscribeToPlayState((isPlaying) => {
       setIsPerformanceMode(isPlaying);
     });
+    return () => { unsub(); };
   }, []);
 
   if (isPerformanceMode || !isVisible) return null;

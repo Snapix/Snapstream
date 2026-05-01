@@ -3,19 +3,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Search } from './pages/Search';
 import { Watch } from './pages/Watch';
+import { Settings as SettingsPage } from './pages/Settings';
 
 import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
 import { useState, useEffect } from 'react';
 
 import { SmoothCursor } from './components/ui/smooth-cursor';
-import { Dock, DockIcon } from './components/ui/dock';
+import TargetCursor from './components/ui/TargetCursor';
+import ReactBitsDock from './components/ui/ReactBitsDock';
 import { Home as HomeIcon, Film, Tv, Search as SearchIcon, Settings } from 'lucide-react';
 import { ClickSpark } from './components/ClickSpark';
 
@@ -24,11 +26,12 @@ function AnimatedRoutes() {
   
   return (
     <AnimatePresence mode="wait">
-      {/* @ts-expect-error React Router types incorrectly omit 'key' which is required for AnimatePresence */}
+      {/* @ts-ignore React Router types sometimes omit 'key' */}
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<Search />} />
         <Route path="/watch/:type/:id" element={<Watch />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </AnimatePresence>
   );
@@ -43,6 +46,13 @@ export default function App() {
       <div className="relative min-h-screen text-white font-sans selection:bg-accent-purple/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
         <ClickSpark sparkColor="#00f3ff" sparkCount={12} sparkSize={15}>
           <SmoothCursor />
+          <TargetCursor
+            targetSelector=".cursor-target"
+            spinDuration={2}
+            hideDefaultCursor={false}
+            hoverDuration={0.2}
+            parallaxOn={true}
+          />
           <AnimatePresence>
             {showSplash && (
               <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -70,31 +80,20 @@ export default function App() {
             </footer>
 
             {/* Bottom floating Dock */}
-            <div className="fixed bottom-4 left-0 right-0 z-[100] pointer-events-none flex justify-center">
-              <div className="pointer-events-auto">
-                <Dock 
-                  direction="middle" 
-                  className="bg-black/40 border-white/10 dark:bg-black/40 backdrop-blur-xl supports-backdrop-blur:bg-black/40 supports-backdrop-blur:dark:bg-black/40 shadow-[0_8px_32px_rgba(0,243,255,0.15)]"
-                  iconSize={48}
-                  iconMagnification={64}
-                >
-                  <DockIcon onClick={() => window.location.href = '/'}>
-                    <HomeIcon className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                  </DockIcon>
-                  <DockIcon onClick={() => window.location.href = '/?filter=Movies'}>
-                    <Film className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                  </DockIcon>
-                  <DockIcon onClick={() => window.location.href = '/?filter=TV+Shows'}>
-                    <Tv className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                  </DockIcon>
-                  <DockIcon onClick={() => window.location.href = '/search'}>
-                    <SearchIcon className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                  </DockIcon>
-                  <DockIcon onClick={() => setIsAboutOpen(true)}>
-                    <Settings className="w-5 h-5 text-zinc-300 group-hover:text-white" />
-                  </DockIcon>
-                </Dock>
-              </div>
+            <div className="fixed bottom-4 left-0 right-0 z-[100] flex justify-center cursor-target text-black dark:text-white">
+              <ReactBitsDock 
+                items={[
+                  { icon: <HomeIcon className="w-5 h-5 text-zinc-300" />, label: 'Home', onClick: () => window.location.href = '/' },
+                  { icon: <Film className="w-5 h-5 text-zinc-300" />, label: 'Movies', onClick: () => window.location.href = '/?filter=Movies' },
+                  { icon: <Tv className="w-5 h-5 text-zinc-300" />, label: 'TV Shows', onClick: () => window.location.href = '/?filter=TV+Shows' },
+                  { icon: <SearchIcon className="w-5 h-5 text-zinc-300" />, label: 'Search', onClick: () => window.location.href = '/search' },
+                  { icon: <Settings className="w-5 h-5 text-zinc-300" />, label: 'Settings', onClick: () => window.location.href = '/settings' }
+                ]}
+                className="bg-black/80 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,243,255,0.15)]"
+                panelHeight={68}
+                baseItemSize={50}
+                magnification={70}
+              />
             </div>
 
           </div>

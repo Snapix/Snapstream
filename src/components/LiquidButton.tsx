@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { motion, HTMLMotionProps } from 'motion/react';
 import { cn } from '../lib/utils';
 
-export interface LiquidButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface LiquidButtonProps extends HTMLMotionProps<"button"> {
   variant?: 'primary' | 'secondary';
   size?: 'default' | 'icon' | 'lg';
   children: ReactNode;

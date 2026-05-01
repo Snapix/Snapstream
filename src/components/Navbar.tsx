@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, X, Bell, ChevronDown } from 'lucide-react';
+import { Search, X, Bell, ChevronDown, User as UserIcon, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { AuroraText } from './ui/aurora-text';
 import { useDebounce } from '../hooks/performance';
+import { useAuth } from '../context/AuthContext';
 
 const NAV_LINKS = [
   { label: 'Home',     href: '/' },
@@ -24,9 +25,12 @@ export const Navbar = memo(function Navbar() {
   const [scrolled,     setScrolled]     = useState(false);
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState('');
+  const [menuOpen,     setMenuOpen]     = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const navigate   = useNavigate();
   const location   = useLocation();
+  const { user, signInWithGoogle, logout } = useAuth();
 
   /* ── scroll handler ─────────────────────────────────────── */
   useEffect(() => {
@@ -65,13 +69,26 @@ export const Navbar = memo(function Navbar() {
     }
   }, [searchQuery, navigate]);
 
-  /* ── close on escape ─────────────────────────────────────── */
+  /* ── close on escape or click outside ───────────────────── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSearchOpen(false);
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+        setMenuOpen(false);
+      }
+    };
+    
+    const onClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClickOutside);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onClickOutside);
+    };
   }, []);
 
   return (
@@ -97,7 +114,7 @@ export const Navbar = memo(function Navbar() {
           {/* ── Logo ─────────────────────────────────────── */}
           <Link
             to="/"
-            className="flex items-center flex-shrink-0 group"
+            className="flex items-center flex-shrink-0 group cursor-target"
             aria-label="SnapStream Home"
           >
             <AuroraText className="text-xl sm:text-3xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
@@ -114,7 +131,7 @@ export const Navbar = memo(function Navbar() {
                   key={label}
                   to={href}
                   className={cn(
-                    'relative px-3 py-2 rounded-md text-sm font-semibold tracking-wide transition-colors duration-200',
+                    'cursor-target relative px-3 py-2 rounded-md text-sm font-semibold tracking-wide transition-colors duration-200',
                     isActive
                       ? 'text-white'
                       : 'text-zinc-400 hover:text-zinc-100'
@@ -151,7 +168,7 @@ export const Navbar = memo(function Navbar() {
                 onChange={handleQueryChange}
                 placeholder="Search movies, shows, anime…"
                 className={cn(
-                  'search-input pl-9 pr-4 py-2 h-9 text-sm',
+                  'cursor-target search-input pl-9 pr-4 py-2 h-9 text-sm',
                   'transition-all duration-300',
                   'w-44 focus:w-64',
                 )}
@@ -162,7 +179,7 @@ export const Navbar = memo(function Navbar() {
             {/* Mobile search icon */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="btn-icon btn md:hidden w-9 h-9"
+              className="cursor-target btn-icon btn md:hidden w-9 h-9"
               aria-label="Open search"
             >
               <Search className="w-4 h-4" />
@@ -170,25 +187,75 @@ export const Navbar = memo(function Navbar() {
 
             {/* Notification bell */}
             <button
-              className="btn-icon btn relative w-9 h-9 hidden sm:flex"
+              className="cursor-target btn-icon btn relative w-9 h-9 hidden sm:flex"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#00f3ff] shadow-[0_0_6px_#00f3ff]" />
             </button>
 
-            {/* Profile avatar */}
-            <button
-              className="relative w-8 h-8 rounded-full overflow-hidden border border-white/15 hover:border-[#00f3ff]/50 transition-all shadow-[0_0_0_2px_transparent] hover:shadow-[0_0_0_2px_rgba(0,243,255,.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00f3ff]"
-              aria-label="Profile menu"
-            >
-              <img
-                src="/profile.jpeg"
-                alt="Profile"
-                className="w-full h-full object-cover"
-                onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=G+S&background=040812&color=00f3ff&size=80&bold=true&format=svg"; }}
-              />
-            </button>
+            {/* Profile Menu */}
+            <div className="relative" ref={menuRef}>
+              {user ? (
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="cursor-target relative w-8 h-8 rounded-full overflow-hidden border border-white/15 hover:border-[#00f3ff]/50 transition-all shadow-[0_0_0_2px_transparent] hover:shadow-[0_0_0_2px_rgba(0,243,255,.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00f3ff]"
+                  aria-label="Profile menu"
+                >
+                  <img
+                    src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'U'}&background=040812&color=00f3ff&size=80&bold=true&format=svg`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=U+S&background=040812&color=00f3ff&size=80&bold=true&format=svg"; }}
+                  />
+                </button>
+              ) : (
+                <button
+                  onClick={signInWithGoogle}
+                  className="cursor-target flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span className="hidden sm:inline">Sign In</span>
+                </button>
+              )}
+
+              <AnimatePresence>
+                {menuOpen && user && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-3 w-48 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden z-[100]"
+                  >
+                    <div className="px-4 py-3 border-b border-white/10">
+                      <p className="text-sm font-semibold text-white truncate">{user.displayName}</p>
+                      <p className="text-xs text-zinc-400 truncate mt-0.5">{user.email}</p>
+                    </div>
+                    <div className="p-1">
+                      <Link
+                        to="/settings"
+                        onClick={() => setMenuOpen(false)}
+                        className="cursor-target w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <SettingsIcon className="w-4 h-4" />
+                        Settings
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          logout();
+                        }}
+                        className="cursor-target w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </motion.header>
@@ -219,7 +286,7 @@ export const Navbar = memo(function Navbar() {
               </form>
               <button
                 onClick={() => setSearchOpen(false)}
-                className="p-2 rounded-full hover:bg-white/[.06] transition-colors"
+                className="cursor-target p-2 rounded-full hover:bg-white/[.06] transition-colors"
                 aria-label="Close search"
               >
                 <X className="w-5 h-5 text-zinc-400" />

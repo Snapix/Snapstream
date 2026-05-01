@@ -1,5 +1,8 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Instagram, Youtube, Globe } from "lucide-react";
+import GlassSurface from "./ui/GlassSurface";
+import MetaBalls from "./ui/MetaBalls";
+import ScrollFloat from "./ui/ScrollFloat";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -23,8 +26,33 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: "100%", opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full sm:max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden pointer-events-auto"
+            className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden pointer-events-auto cursor-target"
           >
+            {/* MetaBalls background */}
+            <div className="absolute inset-0 z-0">
+              <MetaBalls 
+                color="#00f3ff" 
+                cursorBallColor="#b44bff" 
+                animationSize={50} 
+                ballCount={15} 
+                speed={0.4} 
+              />
+            </div>
+          
+            {/* Glass Surface overlay */}
+            <GlassSurface
+              width="100%"
+              height="100%"
+              borderRadius={24}
+              brightness={15}
+              opacity={0.8}
+              blur={20}
+              className="absolute inset-0 z-0"
+              style={{ padding: 0 }}
+            >
+              <div />
+            </GlassSurface>
+
             {/* Top decorative gradient */}
             <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/20 to-transparent" />
             
@@ -36,7 +64,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             </button>
 
             <div className="p-8 flex flex-col items-center text-center mt-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.3)] mb-6 bg-black/50 relative flex items-center justify-center group">
+              <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,243,255,0.3)] mb-6 bg-black/50 relative flex items-center justify-center group z-10">
                 <img 
                   src="/profile.jpeg" 
                   alt="Creator: Snappy - Girish" 
@@ -46,14 +74,22 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                 <div className="absolute inset-0 bg-[#00f3ff]/20 blur-md pointer-events-none" />
               </div>
               
-              <h2 className="text-2xl font-bold text-white mb-2 font-display">Creator: Snappy - Girish</h2>
-              <p className="text-sm font-medium text-primary mb-4">Powered using Vidking backend</p>
+              <ScrollFloat 
+                animationDuration={1}
+                ease='back.inOut(2)'
+                textClassName="text-2xl font-bold text-white mb-2 font-display z-10"
+                containerClassName="!inline-block z-10 mb-2"
+              >
+                Creator: Snappy - Girish
+              </ScrollFloat>
               
-              <p className="text-xs text-zinc-500 mb-8 max-w-[250px]">
+              <p className="text-sm font-medium text-primary mb-4 z-10 relative">Powered using Vidking backend</p>
+              
+              <p className="text-xs text-zinc-500 mb-8 max-w-[250px] z-10 relative">
                 Made for people who hate paid streaming platforms
               </p>
 
-              <div className="w-full flex flex-col gap-3">
+              <div className="w-full flex flex-col gap-3 z-10 relative">
                 <a 
                   href="https://www.instagram.com/snapix_yt?igsh=MTVpOHE5cHVsdXV1cA==" 
                   target="_blank" 
