@@ -16,6 +16,7 @@ export function Watch() {
   const navigate = useNavigate();
   const [details, setDetails] = useState<Media | null>(null);
   const [similar, setSimilar] = useState<Media[]>([]);
+  const [providers, setProviders] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const [isPlaying, setIsPlaying] = useState(false);
@@ -35,6 +36,15 @@ export function Watch() {
         ]);
         setDetails(detailsData);
         setSimilar(similarData);
+
+        // Fetch streaming providers for accurate count
+        try {
+          const { fetchProviders } = await import('../services/tmdb');
+          const providersData = await fetchProviders(id, type);
+          setProviders(providersData);
+        } catch (e) {
+           console.warn('Could not fetch providers', e);
+        }
 
         // Save to Continue Watching
         const recentRaw = localStorage.getItem('snapstream_recent');
@@ -179,11 +189,15 @@ export function Watch() {
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                 <div className="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse" />
-                <span className="font-semibold text-sm tracking-wide text-zinc-300">AVAILABLE SERVERS: <span className="text-white font-bold">12</span></span>
+                <span className="font-semibold text-sm tracking-wide text-zinc-300">
+                  AVAILABLE SERVERS: <span className="text-white font-bold">{providers?.flatrate?.length || providers?.rent?.length || providers?.buy?.length || 'No streams available'}</span>
+                </span>
               </div>
               <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                 <div className="w-2 h-2 rounded-full bg-[#b44bff] animate-pulse" />
-                <span className="font-semibold text-sm tracking-wide text-zinc-300">AVAILABLE LANGUAGES: <span className="text-white font-bold">8</span></span>
+                <span className="font-semibold text-sm tracking-wide text-zinc-300">
+                  AVAILABLE LANGUAGES: <span className="text-white font-bold">{details.original_language ? '1+' : '1'}</span>
+                </span>
               </div>
             </div>
           </div>

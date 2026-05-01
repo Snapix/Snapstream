@@ -3,19 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
-import { Navbar } from './components/Navbar';
 import { Home } from './pages/Home';
 import { Search } from './pages/Search';
 import { Watch } from './pages/Watch';
 import { Settings as SettingsPage } from './pages/Settings';
 
 import { AboutModal } from './components/AboutModal';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import ReactBitsDock from './components/ui/ReactBitsDock';
-import { Home as HomeIcon, Film, Tv, Search as SearchIcon, Settings } from 'lucide-react';
+import { Sidebar } from './components/Sidebar';
+import { MobileNav } from './components/MobileNav';
+import { BlobCursor } from './components/BlobCursor';
+import PixelTrail from './components/ui/PixelTrail';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,12 +39,18 @@ export default function App() {
 
   return (
     <Router>
-      <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex flex-col overflow-x-hidden bg-black">
+      <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex overflow-hidden bg-black">
+          <BlobCursor color="#00f3ff" />
+          <div className="absolute inset-0 pointer-events-none z-0">
+             <PixelTrail pixelSize={16} fadeDuration={1500} pixelColor="#00f3ff" />
+          </div>
+          
           <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
 
-          <div className="relative z-10 flex flex-col flex-1 pb-[80px]">
-            <Navbar />
-            <main className="flex-1">
+          <Sidebar onOpenAbout={() => setIsAboutOpen(true)} />
+
+          <div className="relative z-10 flex flex-col flex-1 pb-[80px] sm:pb-0 h-screen overflow-y-auto">
+            <main className="flex-1 w-full max-w-[100vw]">
               <AnimatedRoutes />
             </main>
             
@@ -58,25 +65,9 @@ export default function App() {
                 About Creator
               </button>
             </footer>
-
-            {/* Bottom floating Dock */}
-            <div className="fixed bottom-4 left-0 right-0 z-[100] flex justify-center text-black dark:text-white">
-              <ReactBitsDock 
-                items={[
-                  { icon: <HomeIcon className="w-5 h-5 text-zinc-300" />, label: 'Home', onClick: () => window.location.href = '/' },
-                  { icon: <Film className="w-5 h-5 text-zinc-300" />, label: 'Movies', onClick: () => window.location.href = '/?filter=Movies' },
-                  { icon: <Tv className="w-5 h-5 text-zinc-300" />, label: 'TV Shows', onClick: () => window.location.href = '/?filter=TV+Shows' },
-                  { icon: <SearchIcon className="w-5 h-5 text-zinc-300" />, label: 'Search', onClick: () => window.location.href = '/search' },
-                  { icon: <Settings className="w-5 h-5 text-zinc-300" />, label: 'Settings', onClick: () => window.location.href = '/settings' }
-                ]}
-                className="bg-black/80 backdrop-blur-xl border-white/10 shadow-[0_8px_32px_rgba(0,243,255,0.15)]"
-                panelHeight={68}
-                baseItemSize={50}
-                magnification={70}
-              />
-            </div>
-
           </div>
+
+          <MobileNav onOpenAbout={() => setIsAboutOpen(true)} />
       </div>
     </Router>
   );
