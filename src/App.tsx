@@ -6,8 +6,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
-import SplashCursor from './components/ui/SplashCursor';
-import LiquidEther from './components/ui/LiquidEther';
+import { Backgrounds } from './components/Backgrounds';
 import { Home } from './pages/Home';
 import { Search } from './pages/Search';
 import { Watch } from './pages/Watch';
@@ -47,12 +46,9 @@ export default function App() {
       </AnimatePresence>
       <Router>
         <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex overflow-hidden bg-black">
-            <SplashCursor COLORFUL={false} COLOR="#00f3ff" SPLAT_RADIUS={0.1} TRANSPARENT={true} />
+            <Backgrounds />
             <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
             <Navbar onOpenAbout={() => setIsAboutOpen(true)} />
-            <div className="fixed inset-0 z-[1] pointer-events-none opacity-30 mix-blend-screen">
-              <LiquidEther colors={['#001122', '#003344', '#000511']} autoDemo={true} />
-            </div>
             <div className="relative z-10 flex flex-col flex-1 h-screen overflow-y-auto pt-[80px]">
               <main className="flex-1 w-full max-w-[100vw]">
                 <AnimatedRoutes />
