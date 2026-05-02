@@ -197,15 +197,6 @@ export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () =
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Notification bell */}
-            <button
-              className="btn-icon btn relative w-9 h-9 hidden sm:flex"
-              aria-label="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#00f3ff] shadow-[0_0_6px_#00f3ff]" />
-            </button>
-
             {/* Profile Menu */}
             <div className="relative" ref={menuRef}>
               {user ? (
@@ -215,10 +206,10 @@ export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () =
                   aria-label="Profile menu"
                 >
                   <img
-                    src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'U'}&background=040812&color=00f3ff&size=80&bold=true&format=svg`}
+                    src="/profile.jpeg"
                     alt="Profile"
                     className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=U+S&background=040812&color=00f3ff&size=80&bold=true&format=svg"; }}
+                    onError={(e) => { e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"; }}
                   />
                 </button>
               ) : (

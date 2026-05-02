@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Instagram, Youtube, Globe } from "lucide-react";
-import ScrollFloat from "./ui/ScrollFloat";
 
 interface AboutModalProps {
   isOpen: boolean;
@@ -42,19 +41,14 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
                   src="/profile.jpeg" 
                   alt="Creator: Snappy - Girish" 
                   className="w-full h-full object-cover z-10 transition-transform duration-500 group-hover:scale-110" 
-                  onError={(e) => e.currentTarget.src = "https://ui-avatars.com/api/?name=G+S&background=000&color=00f3ff"} 
+                  onError={(e) => { e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"; }}
                 />
                 <div className="absolute inset-0 bg-[#00f3ff]/20 blur-md pointer-events-none" />
               </div>
               
-              <ScrollFloat 
-                animationDuration={1}
-                ease='back.inOut(2)'
-                textClassName="text-2xl font-bold text-white mb-2 font-display z-10"
-                containerClassName="!inline-block z-10 mb-2"
-              >
+              <h2 className="text-2xl font-bold text-white mb-2 font-display z-10">
                 Creator: Snappy - Girish
-              </ScrollFloat>
+              </h2>
               
               <p className="text-sm font-medium text-primary mb-4 z-10 relative">Powered using Vidking backend</p>
               

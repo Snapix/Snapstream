@@ -49,7 +49,7 @@ export default function App() {
             <Backgrounds />
             <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
             <Navbar onOpenAbout={() => setIsAboutOpen(true)} />
-            <div className="relative z-10 flex flex-col flex-1 h-screen overflow-y-auto pt-[80px]">
+            <div className="relative z-10 flex flex-col flex-1 h-screen overflow-y-auto pt-0">
               <main className="flex-1 w-full max-w-[100vw]">
                 <AnimatedRoutes />
               </main>
