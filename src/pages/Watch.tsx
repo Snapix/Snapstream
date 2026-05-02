@@ -82,10 +82,10 @@ export function Watch() {
     );
   }
 
-  // Use default vidsrc URL
+  // Use default vidlink URL with custom primary color to match theme
   const embedUrl = type === 'tv' 
-    ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}` 
-    : `https://vidsrc.me/embed/movie?tmdb=${id}`;
+    ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=00f3ff`
+    : `https://vidlink.pro/movie/${id}?primaryColor=00f3ff`;
 
   return (
     <motion.div

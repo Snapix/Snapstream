@@ -20,7 +20,7 @@ import { DisclaimerModal } from './components/DisclaimerModal';
 import { Sidebar } from './components/Sidebar';
 import { MobileNav } from './components/MobileNav';
 
-const PixelTrail = React.lazy(() => import('./components/ui/PixelTrail'));
+const CustomCursor = React.lazy(() => import('./components/ui/CustomCursor'));
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -76,15 +76,7 @@ export default function App() {
             <Backgrounds />
             {isDesktop && (
               <Suspense fallback={null}>
-                <div className="fixed inset-0 pointer-events-none z-[100]">
-                  <PixelTrail 
-                    gridSize={40} 
-                    trailSize={0.05} 
-                    maxAge={200} 
-                    interpolate={2} 
-                    color="#00f3ff" 
-                  />
-                </div>
+                <CustomCursor />
               </Suspense>
             )}
             <DisclaimerModal 

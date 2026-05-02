@@ -2,6 +2,7 @@ import { TMDB_BASE_URL, TMDB_TOKEN } from '../constants';
 
 const options = {
   method: 'GET',
+  cache: 'no-store' as RequestCache,
   headers: {
     accept: 'application/json',
     Authorization: `Bearer ${TMDB_TOKEN}`
@@ -40,57 +41,66 @@ const filterSafe = (results: any[]) => {
 };
 
 export const fetchTrendingMovies = async (): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/trending/movie/day?language=en-US`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/trending/movie/day?language=en-US&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results).map((item: Media) => ({ ...item, media_type: 'movie' }));
 };
 
 export const fetchPopularTV = async (): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/tv/popular?language=en-US&page=1`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/tv/popular?language=en-US&page=1&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results).map((item: Media) => ({ ...item, media_type: 'tv' }));
 };
 
 export const fetchTopRated = async (): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/movie/top_rated?language=en-US&page=1`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/movie/top_rated?language=en-US&page=1&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results).map((item: Media) => ({ ...item, media_type: 'movie' }));
 };
 
 export const fetchMovieDetails = async (id: string, type: 'movie' | 'tv' = 'movie'): Promise<Media> => {
-  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?language=en-US`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}?language=en-US&_t=${ts}`, options);
   const data = await res.json();
   return data;
 };
 
 export const searchMedia = async (query: string): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1&_t=${ts}`, options);
   const data = await res.json();
   // Filter out people and adult content
   return filterSafe(data.results).filter((item: Media) => item.media_type !== 'person');
 };
 
 export const fetchAnime = async (): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc&language=en-US&page=1&include_adult=false`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc&language=en-US&page=1&include_adult=false&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results).map((item: Media) => ({ ...item, media_type: 'tv' }));
 };
 
 export const fetchCartoons = async (): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/discover/tv?with_genres=16&without_original_language=ja&sort_by=popularity.desc&language=en-US&page=1&include_adult=false`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/discover/tv?with_genres=16&without_original_language=ja&sort_by=popularity.desc&language=en-US&page=1&include_adult=false&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results).map((item: Media) => ({ ...item, media_type: 'tv' }));
 };
 
 export const fetchProviders = async (id: string, type: 'movie' | 'tv' = 'movie'): Promise<any> => {
-  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}/watch/providers`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}/watch/providers?_t=${ts}`, options);
   const data = await res.json();
   const usProviders = data.results?.US;
   return usProviders;
 };
 
 export const fetchSimilar = async (id: string, type: 'movie' | 'tv' = 'movie'): Promise<Media[]> => {
-  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}/similar?language=en-US&page=1`, options);
+  const ts = Date.now();
+  const res = await fetch(`${TMDB_BASE_URL}/${type}/${id}/similar?language=en-US&page=1&_t=${ts}`, options);
   const data = await res.json();
   return filterSafe(data.results);
 };
