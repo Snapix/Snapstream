@@ -170,7 +170,7 @@ export const HeroBanner = memo(function HeroBanner({ movies, movie }: HeroBanner
               initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               transition={{ delay: 0.2, duration: 0.8, ease: [0.21,0.47,0.32,0.98] }}
-              className="text-4xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight text-white mb-4 font-display"
+              className="text-5xl sm:text-7xl md:text-8xl font-black leading-none tracking-tight text-white mb-4 font-display"
               style={{ textShadow: '0 2px 20px rgba(0,0,0,.8)' }}
             >
               {film.title || film.name}
@@ -187,10 +187,10 @@ export const HeroBanner = memo(function HeroBanner({ movies, movie }: HeroBanner
                 <Star className="w-3 h-3 fill-[#ffd700]" />
                 {matchPct}% Match
               </div>
-              <span className="text-xs font-bold text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded-[3px]">
+              <span className="text-sm font-bold text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded-[3px]">
                 4K UHD
               </span>
-              <span className="text-xs font-bold text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded-[3px]">
+              <span className="text-sm font-bold text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded-[3px]">
                 HDR
               </span>
             </motion.div>
@@ -200,8 +200,8 @@ export const HeroBanner = memo(function HeroBanner({ movies, movie }: HeroBanner
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-zinc-300 text-sm sm:text-base leading-relaxed line-clamp-3 sm:line-clamp-4 mb-8 max-w-lg"
-              style={{ textShadow: '0 1px 8px rgba(0,0,0,.7)' }}
+              className="text-zinc-200 text-base sm:text-lg leading-relaxed line-clamp-3 sm:line-clamp-4 mb-8 max-w-lg"
+              style={{ textShadow: '0 1px 12px rgba(0,0,0,.9)' }}
             >
               {film.overview}
             </motion.p>

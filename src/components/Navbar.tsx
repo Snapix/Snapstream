@@ -101,8 +101,8 @@ export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () =
         className={cn(
           'fixed top-0 inset-x-0 z-50 h-16 sm:h-20 transition-all duration-300 will-change-[background,box-shadow]',
           scrolled
-            ? 'bg-black/65 backdrop-blur-2xl border-b border-white/[.04] shadow-[0_8px_32px_rgba(0,0,0,.5),0_1px_0_rgba(255,255,255,.04)_inset]'
-            : 'bg-gradient-to-b from-black/70 to-transparent'
+            ? 'bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,.5)]'
+            : 'bg-black/20 backdrop-blur-md border-b border-transparent'
         )}
       >
         {/* Specular top edge highlight */}
@@ -118,7 +118,7 @@ export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () =
               className="flex items-center flex-shrink-0 group"
             aria-label="SnapStream Home"
           >
-            <AuroraText className="text-xl sm:text-3xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
+            <AuroraText className="px-2 py-1 text-xl sm:text-3xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
               SnapStream
             </AuroraText>
           </Link>

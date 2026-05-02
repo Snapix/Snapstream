@@ -7,16 +7,16 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
     let currentProgress = 0;
     const interval = setInterval(() => {
-      currentProgress += Math.random() * 15;
+      currentProgress += Math.random() * 20 + 20;
       if (currentProgress > 100) {
         currentProgress = 100;
         setProgress(currentProgress);
         clearInterval(interval);
-        setTimeout(onComplete, 500); // Wait a half sec at 100%
+        setTimeout(onComplete, 200); // Wait a fraction at 100%
       } else {
         setProgress(currentProgress);
       }
-    }, 150);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [onComplete]);
