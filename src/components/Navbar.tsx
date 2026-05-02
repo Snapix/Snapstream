@@ -7,12 +7,13 @@ import { AuroraText } from './ui/aurora-text';
 import { useDebounce } from '../hooks/performance';
 import { useAuth } from '../context/AuthContext';
 
+import GlassSurface from './ui/GlassSurface';
+
 const NAV_LINKS = [
   { label: 'Home',     href: '/' },
-  { label: 'Movies',   href: '/?filter=Movies' },
-  { label: 'TV Shows', href: '/?filter=TV+Shows' },
-  { label: 'Anime',    href: '/?filter=Anime' },
+  { label: 'About',    href: '#about' }, // We'll intercept this
 ];
+
 
 /**
  * Liquid glass navbar.
@@ -21,7 +22,7 @@ const NAV_LINKS = [
  * ✓ GPU-only transitions
  * ✓ Glassmorphism specular highlight
  */
-export const Navbar = memo(function Navbar() {
+export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () => void }) {
   const [scrolled,     setScrolled]     = useState(false);
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState('');
@@ -114,7 +115,7 @@ export const Navbar = memo(function Navbar() {
           {/* ── Logo ─────────────────────────────────────── */}
           <Link
             to="/"
-            className="flex items-center flex-shrink-0 group cursor-target"
+              className="flex items-center flex-shrink-0 group"
             aria-label="SnapStream Home"
           >
             <AuroraText className="text-xl sm:text-3xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
@@ -130,8 +131,14 @@ export const Navbar = memo(function Navbar() {
                 <Link
                   key={label}
                   to={href}
+                  onClick={(e) => {
+                    if (href === '#about') {
+                      e.preventDefault();
+                      onOpenAbout?.();
+                    }
+                  }}
                   className={cn(
-                    'cursor-target relative px-3 py-2 rounded-md text-sm font-semibold tracking-wide transition-colors duration-200',
+                    'group relative px-3 py-2 rounded-md text-sm font-semibold tracking-wide transition-colors duration-200',
                     isActive
                       ? 'text-white'
                       : 'text-zinc-400 hover:text-zinc-100'
@@ -156,30 +163,35 @@ export const Navbar = memo(function Navbar() {
           {/* ── Search ───────────────────────────────────── */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Desktop inline search */}
-            <form
-              onSubmit={handleSearchSubmit}
-              className="relative hidden md:flex items-center"
-            >
-              <Search className="absolute left-3 w-3.5 h-3.5 text-zinc-400 pointer-events-none z-10" aria-hidden />
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchQuery}
-                onChange={handleQueryChange}
-                placeholder="Search movies, shows, anime…"
-                className={cn(
-                  'cursor-target search-input pl-9 pr-4 py-2 h-9 text-sm',
-                  'transition-all duration-300',
-                  'w-44 focus:w-64',
-                )}
-                aria-label="Search"
-              />
-            </form>
+            <div className="hidden md:block relative">
+              <GlassSurface width={searchOpen || searchQuery ? 256 : 176} height={36} borderRadius={18} opacity={0.6}>
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="relative flex items-center w-full h-full"
+                >
+                  <Search className="absolute left-3 w-3.5 h-3.5 text-zinc-400 pointer-events-none z-10" aria-hidden />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleQueryChange}
+                    onFocus={() => setSearchOpen(true)}
+                    onBlur={() => setSearchOpen(false)}
+                    placeholder="Search movies..."
+                    className={cn(
+                      'search-input pl-9 pr-4 py-2 w-full h-full text-sm bg-transparent border-none outline-none text-white',
+                      'transition-all duration-300',
+                    )}
+                    aria-label="Search"
+                  />
+                </form>
+              </GlassSurface>
+            </div>
 
             {/* Mobile search icon */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="cursor-target btn-icon btn md:hidden w-9 h-9"
+              className="btn-icon btn md:hidden w-9 h-9"
               aria-label="Open search"
             >
               <Search className="w-4 h-4" />
@@ -187,7 +199,7 @@ export const Navbar = memo(function Navbar() {
 
             {/* Notification bell */}
             <button
-              className="cursor-target btn-icon btn relative w-9 h-9 hidden sm:flex"
+              className="btn-icon btn relative w-9 h-9 hidden sm:flex"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
@@ -199,7 +211,7 @@ export const Navbar = memo(function Navbar() {
               {user ? (
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="cursor-target relative w-8 h-8 rounded-full overflow-hidden border border-white/15 hover:border-[#00f3ff]/50 transition-all shadow-[0_0_0_2px_transparent] hover:shadow-[0_0_0_2px_rgba(0,243,255,.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00f3ff]"
+                  className="relative w-8 h-8 rounded-full overflow-hidden border border-white/15 hover:border-[#00f3ff]/50 transition-all shadow-[0_0_0_2px_transparent] hover:shadow-[0_0_0_2px_rgba(0,243,255,.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00f3ff]"
                   aria-label="Profile menu"
                 >
                   <img
@@ -211,8 +223,8 @@ export const Navbar = memo(function Navbar() {
                 </button>
               ) : (
                 <button
-                  onClick={signInWithGoogle}
-                  className="cursor-target flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  onClick={() => signInWithGoogle()}
+                  className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
                 >
                   <UserIcon className="w-4 h-4" />
                   <span className="hidden sm:inline">Sign In</span>
@@ -236,7 +248,7 @@ export const Navbar = memo(function Navbar() {
                       <Link
                         to="/settings"
                         onClick={() => setMenuOpen(false)}
-                        className="cursor-target w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                       >
                         <SettingsIcon className="w-4 h-4" />
                         Settings
@@ -246,7 +258,7 @@ export const Navbar = memo(function Navbar() {
                           setMenuOpen(false);
                           logout();
                         }}
-                        className="cursor-target w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/10 rounded-lg transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign Out
@@ -286,7 +298,7 @@ export const Navbar = memo(function Navbar() {
               </form>
               <button
                 onClick={() => setSearchOpen(false)}
-                className="cursor-target p-2 rounded-full hover:bg-white/[.06] transition-colors"
+                className="p-2 rounded-full hover:bg-white/[.06] transition-colors"
                 aria-label="Close search"
               >
                 <X className="w-5 h-5 text-zinc-400" />

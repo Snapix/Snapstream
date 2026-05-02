@@ -81,10 +81,10 @@ export function Watch() {
     );
   }
 
-  // Use Strict Vidking URL
+  // Use default vidsrc URL
   const embedUrl = type === 'tv' 
-    ? `https://www.vidking.net/embed/tv/${id}/${season}/${episode}` 
-    : `https://www.vidking.net/embed/movie/${id}`;
+    ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}` 
+    : `https://vidsrc.me/embed/movie?tmdb=${id}`;
 
   return (
     <motion.div
@@ -154,7 +154,7 @@ export function Watch() {
             <Magnet padding={50} magnetStrength={3} disabled={false}>
               <button 
                 onClick={() => setIsPlaying(true)}
-                className="flex items-center gap-3 bg-[#00f3ff] text-black px-8 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,243,255,0.4)] cursor-target pointer-events-auto"
+                className="flex items-center gap-3 bg-[#00f3ff] text-black px-8 py-4 rounded-full font-bold hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(0,243,255,0.4)]  pointer-events-auto"
               >
                 <Play className="w-5 h-5 fill-black" />
                 WATCH NOW

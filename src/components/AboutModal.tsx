@@ -1,7 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, Instagram, Youtube, Globe } from "lucide-react";
-import GlassSurface from "./ui/GlassSurface";
-import MetaBalls from "./ui/MetaBalls";
 import ScrollFloat from "./ui/ScrollFloat";
 
 interface AboutModalProps {
@@ -26,33 +24,8 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: "100%", opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden pointer-events-auto cursor-target"
+            className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden pointer-events-auto bg-black border border-white/10"
           >
-            {/* MetaBalls background */}
-            <div className="absolute inset-0 z-0">
-              <MetaBalls 
-                color="#00f3ff" 
-                cursorBallColor="#b44bff" 
-                animationSize={50} 
-                ballCount={15} 
-                speed={0.4} 
-              />
-            </div>
-          
-            {/* Glass Surface overlay */}
-            <GlassSurface
-              width="100%"
-              height="100%"
-              borderRadius={24}
-              brightness={15}
-              opacity={0.8}
-              blur={20}
-              className="absolute inset-0 z-0"
-              style={{ padding: 0 }}
-            >
-              <div />
-            </GlassSurface>
-
             {/* Top decorative gradient */}
             <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-primary/20 to-transparent" />
             

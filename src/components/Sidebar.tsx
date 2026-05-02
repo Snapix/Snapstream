@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Film, Tv, Search, Info, User as UserIcon, LogOut } from 'lucide-react';
-import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 import { AuroraText } from './ui/aurora-text';
 import { useAuth } from '../context/AuthContext';
@@ -22,77 +21,71 @@ export const Sidebar = memo(function Sidebar({ onOpenAbout }: SidebarProps) {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-black border-r border-white/10 z-50 flex flex-col hidden lg:flex">
-      <div className="p-6">
-        <Link
-          to="/"
-          className="flex items-center group cursor-pointer"
-          aria-label="SnapStream Home"
-        >
-          <AuroraText className="text-2xl font-black tracking-tighter font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
-            SnapStream
-          </AuroraText>
-        </Link>
-      </div>
+    <aside className="fixed left-0 top-0 bottom-0 w-20 bg-black/95 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col hidden lg:flex items-center py-6">
+      <Link
+        to="/"
+        className="mb-8 flex items-center group cursor-pointer"
+        aria-label="SnapStream Home"
+        title="SnapStream"
+      >
+        <AuroraText className="text-3xl font-black font-display italic uppercase drop-shadow-[0_0_8px_rgba(0,243,255,.4)] group-hover:drop-shadow-[0_0_15px_rgba(0,243,255,.6)] transition-all" colors={["#ffffff", "#00f3ff", "#ffffff"]}>
+          S
+        </AuroraText>
+      </Link>
 
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+      <nav className="flex-1 flex flex-col items-center space-y-4 w-full pt-4">
         {NAV_LINKS.map(({ label, href, icon: Icon }) => {
           const isActive = location.pathname === href || (href !== '/' && location.search.includes(label.replace(' ', '+')));
           return (
             <Link
               key={label}
               to={href}
+              title={label}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group overflow-hidden',
-                isActive ? 'text-black bg-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.3)]' : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                'p-3.5 rounded-2xl transition-all duration-300 relative group overflow-hidden',
+                isActive ? 'text-black bg-[#00f3ff] shadow-[0_0_20px_rgba(0,243,255,0.4)] scale-110' : 'text-zinc-500 hover:text-white hover:bg-white/10 hover:scale-105'
               )}
             >
-              <Icon className={cn("w-5 h-5", isActive ? "text-black" : "text-zinc-400 group-hover:text-white")} />
-              <span className="relative z-10">{label}</span>
+              <Icon className="w-6 h-6 relative z-10" />
             </Link>
           );
         })}
 
         <button
           onClick={onOpenAbout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200 text-left"
+          title="About"
+          className="mt-4 p-3.5 rounded-2xl text-zinc-500 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
         >
-          <Info className="w-5 h-5 text-zinc-400" />
-          <span>About</span>
+          <Info className="w-6 h-6" />
         </button>
       </nav>
 
-      <div className="p-4 mt-auto border-t border-white/10">
+      <div className="mt-auto w-full flex flex-col items-center pt-6 border-t border-white/10 gap-4">
         {user ? (
-          <div className="flex items-center justify-between bg-white/5 p-3 rounded-2xl border border-white/10">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
-                <img
-                  src="/profile.jpeg"
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="truncate">
-                <p className="text-sm font-medium text-white truncate">{user.displayName || 'User'}</p>
-                <p className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</p>
-              </div>
+          <>
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20 hover:border-[#00f3ff] transition-colors">
+              <img
+                src="/profile.jpeg"
+                alt="Profile"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.displayName}&background=040812&color=00f3ff&bold=true&format=svg`; }}
+              />
             </div>
             <button 
               onClick={logout}
-              className="p-2 text-zinc-400 hover:text-red-400 hover:bg-white/5 rounded-full transition-colors flex-shrink-0"
+              className="p-2.5 text-zinc-500 hover:text-red-400 hover:bg-white/10 rounded-xl transition-all hover:scale-105"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-5 h-5" />
             </button>
-          </div>
+          </>
         ) : (
           <button
             onClick={signInWithGoogle}
-            className="w-full flex items-center justify-center gap-2 bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 border border-[#00f3ff]/20"
+            title="Sign In"
+            className="p-3.5 rounded-2xl bg-[#00f3ff]/10 hover:bg-[#00f3ff]/20 text-[#00f3ff] transition-all duration-300 border border-[#00f3ff]/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(0,243,255,0.2)]"
           >
-            <UserIcon className="w-4 h-4" />
-            <span>Sign In</span>
+            <UserIcon className="w-6 h-6" />
           </button>
         )}
       </div>
