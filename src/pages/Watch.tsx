@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Play } from 'lucide-react';
 import { fetchMovieDetails, fetchSimilar, Media } from '../services/tmdb';
 import { MovieRow } from '../components/MovieRow';
-import { PlayerWrapper } from '../components/PlayerWrapper';
 import { BlurText } from '../components/BlurText';
 import { NeonGradientCard } from '../components/ui/neon-gradient-card';
 import { Particles } from '../components/ui/particles';
 import Magnet from '../components/ui/Magnet';
 import LightRays from '../components/ui/LightRays';
+
+const PlayerWrapper = lazy(() => import('../components/PlayerWrapper').then(m => ({ default: m.PlayerWrapper })));
 
 export function Watch() {
   const { type, id } = useParams<{ type: 'movie' | 'tv'; id: string }>();
@@ -110,17 +111,19 @@ export function Watch() {
           className="w-full flex justify-center py-0 sm:py-6"
         >
           <div className="w-full max-w-[1600px] mx-auto sm:px-6">
-            <PlayerWrapper 
-              embedUrl={embedUrl}
-              title={details.title || details.name || ''}
-              type={type || 'movie'}
-              season={season}
-              episode={episode}
-              onEpisodeChange={(s, e) => {
-                setSeason(s);
-                setEpisode(e);
-              }}
-            />
+            <Suspense fallback={<div className="w-full aspect-video bg-black/80 flex items-center justify-center border border-white/10 rounded-xl"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"/></div>}>
+              <PlayerWrapper 
+                embedUrl={embedUrl}
+                title={details.title || details.name || ''}
+                type={type || 'movie'}
+                season={season}
+                episode={episode}
+                onEpisodeChange={(s, e) => {
+                  setSeason(s);
+                  setEpisode(e);
+                }}
+              />
+            </Suspense>
           </div>
         </motion.div>
       ) : (

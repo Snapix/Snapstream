@@ -1,0 +1,21 @@
+.pixel-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.goo-filter-container {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+body.pixel-trail-active,
+body.pixel-trail-active * {
+  cursor: none !important;
+}

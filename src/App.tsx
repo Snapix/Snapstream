@@ -5,6 +5,7 @@
 
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Navbar } from './components/Navbar';
 import { Backgrounds } from './components/Backgrounds';
 import { Home } from './pages/Home';
@@ -14,10 +15,12 @@ import { Settings as SettingsPage } from './pages/Settings';
 
 import { SplashScreen } from './components/SplashScreen';
 import { AboutModal } from './components/AboutModal';
-import { useState } from 'react';
+import { DisclaimerModal } from './components/DisclaimerModal';
 
 import { Sidebar } from './components/Sidebar';
 import { MobileNav } from './components/MobileNav';
+
+const PixelTrail = React.lazy(() => import('./components/ui/PixelTrail'));
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,15 +41,57 @@ function AnimatedRoutes() {
 export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth > 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    const dontShowAgain = localStorage.getItem('snapstream_disclaimer_hidden');
+    if (dontShowAgain !== 'true') {
+      setShowDisclaimer(true);
+    }
+  };
+
+  const handleDisclaimerAccept = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      localStorage.setItem('snapstream_disclaimer_hidden', 'true');
+    }
+    setShowDisclaimer(false);
+  };
 
   return (
     <>
       <AnimatePresence>
-        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       </AnimatePresence>
       <Router>
         <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex overflow-hidden bg-black">
             <Backgrounds />
+            {isDesktop && (
+              <Suspense fallback={null}>
+                <div className="fixed inset-0 pointer-events-none z-[100]">
+                  <PixelTrail 
+                    gridSize={40} 
+                    trailSize={0.05} 
+                    maxAge={200} 
+                    interpolate={2} 
+                    color="#00f3ff" 
+                  />
+                </div>
+              </Suspense>
+            )}
+            <DisclaimerModal 
+              isOpen={showDisclaimer} 
+              onClose={() => setShowDisclaimer(false)} 
+              onAccept={handleDisclaimerAccept} 
+            />
             <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
             <Navbar onOpenAbout={() => setIsAboutOpen(true)} />
             <div className="relative z-10 flex flex-col flex-1 h-screen overflow-y-auto pt-0">

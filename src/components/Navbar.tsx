@@ -162,39 +162,13 @@ export const Navbar = memo(function Navbar({ onOpenAbout }: { onOpenAbout?: () =
 
           {/* ── Search ───────────────────────────────────── */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Desktop inline search */}
-            <div className="hidden md:block relative">
-              <GlassSurface width={searchOpen || searchQuery ? 256 : 176} height={36} borderRadius={18} opacity={0.6}>
-                <form
-                  onSubmit={handleSearchSubmit}
-                  className="relative flex items-center w-full h-full"
-                >
-                  <Search className="absolute left-3 w-3.5 h-3.5 text-zinc-400 pointer-events-none z-10" aria-hidden />
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={searchQuery}
-                    onChange={handleQueryChange}
-                    onFocus={() => setSearchOpen(true)}
-                    onBlur={() => setSearchOpen(false)}
-                    placeholder="Search movies..."
-                    className={cn(
-                      'search-input pl-9 pr-4 py-2 w-full h-full text-sm bg-transparent border-none outline-none text-white',
-                      'transition-all duration-300',
-                    )}
-                    aria-label="Search"
-                  />
-                </form>
-              </GlassSurface>
-            </div>
-
-            {/* Mobile search icon */}
+            {/* Search icon */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="btn-icon btn md:hidden w-9 h-9"
+              className="btn-icon btn w-9 h-9 sm:w-10 sm:h-10 border border-white/10 bg-black/20 hover:bg-white/10 transition-all rounded-full flex items-center justify-center"
               aria-label="Open search"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-300" />
             </button>
 
             {/* Profile Menu */}

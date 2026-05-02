@@ -1,7 +1,3 @@
-import { useState, useEffect } from 'react';
-import PixelTrail from './ui/PixelTrail';
-import DotParticles from './ui/DotParticles';
-
 export function Backgrounds() {
   return (
     <>
