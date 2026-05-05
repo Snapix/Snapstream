@@ -36,8 +36,26 @@ export interface Media {
   seasons?: Season[];
 }
 
+export const INAPPROPRIATE_KEYWORDS = [
+  'porn', 'sex', 'erotic', 'xxx', 'hentai', 'nude', 'nudity', 'nsfw', 'incest', 'lust', 'sensual', 'hardcore'
+];
+
 const filterSafe = (results: any[]) => {
-  return results.filter(item => !item.adult);
+  if (!results) return [];
+  return results.filter(item => {
+    if (item.adult) return false;
+    
+    // Check title, name, original_title, original_name, overview
+    const textToCheck = [
+      item.title,
+      item.name,
+      item.original_title,
+      item.original_name,
+      item.overview
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    return !INAPPROPRIATE_KEYWORDS.some(keyword => textToCheck.includes(keyword));
+  });
 };
 
 export const fetchTrendingMovies = async (): Promise<Media[]> => {

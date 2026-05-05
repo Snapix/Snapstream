@@ -1,22 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { searchMedia, Media } from '../services/tmdb';
+import { searchMedia, Media, INAPPROPRIATE_KEYWORDS } from '../services/tmdb';
 import { MovieCard } from '../components/MovieCard';
-import { Search as SearchIcon } from 'lucide-react';
+import { Search as SearchIcon, AlertTriangle } from 'lucide-react';
 
 export function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInappropriate, setIsInappropriate] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
       if (!query) {
         setResults([]);
+        setIsInappropriate(false);
         return;
       }
+      
+      const isQueryInappropriate = INAPPROPRIATE_KEYWORDS.some(k => query.toLowerCase().includes(k));
+      if (isQueryInappropriate) {
+        setIsInappropriate(true);
+        setResults([]);
+        return;
+      } else {
+        setIsInappropriate(false);
+      }
+
       setIsLoading(true);
       try {
         const data = await searchMedia(query);
@@ -28,8 +40,6 @@ export function Search() {
       }
     };
 
-    // Debounce is implicit if reacting to query param change, but typically we want actual debounce on typing.
-    // Here we're using URL state, so we just fetch when query param changes.
     fetchResults();
   }, [query]);
 
@@ -46,7 +56,13 @@ export function Search() {
         </h1>
       </div>
 
-      {isLoading ? (
+      {isInappropriate ? (
+        <div className="flex flex-col items-center justify-center h-64 text-red-500">
+          <AlertTriangle className="w-16 h-16 mb-4" />
+          <p className="text-xl font-bold">Inappropriate Content</p>
+          <p className="text-sm mt-2 text-zinc-400">Your search contains inappropriate keywords and cannot be displayed.</p>
+        </div>
+      ) : isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
