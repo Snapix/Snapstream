@@ -28,8 +28,7 @@ export const PlayerWrapper = memo(function PlayerWrapper({
         width="100%"
         height="100%"
         allowFullScreen
-        allow="autoplay; fullscreen"
-        sandbox="allow-scripts allow-same-origin allow-forms"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
         className="absolute inset-0 w-full h-full border-none"
         title={title}
       />

@@ -20,8 +20,6 @@ import { DisclaimerModal } from './components/DisclaimerModal';
 import { Sidebar } from './components/Sidebar';
 import { MobileNav } from './components/MobileNav';
 
-const CustomCursor = React.lazy(() => import('./components/ui/CustomCursor'));
-
 function AnimatedRoutes() {
   const location = useLocation();
   
@@ -42,14 +40,6 @@ export default function App() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(true);
-
-  useEffect(() => {
-    const handleResize = () => setIsDesktop(window.innerWidth > 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
@@ -74,11 +64,6 @@ export default function App() {
       <Router>
         <div className="relative min-h-screen text-white font-sans selection:bg-[#00f3ff]/30 selection:text-white flex overflow-hidden bg-black">
             <Backgrounds />
-            {isDesktop && (
-              <Suspense fallback={null}>
-                <CustomCursor />
-              </Suspense>
-            )}
             <DisclaimerModal 
               isOpen={showDisclaimer} 
               onClose={() => setShowDisclaimer(false)} 

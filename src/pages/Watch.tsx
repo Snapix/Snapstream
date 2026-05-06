@@ -84,8 +84,8 @@ export function Watch() {
 
   // Use default vidlink URL with custom primary color to match theme
   const embedUrl = type === 'tv' 
-    ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=00f3ff`
-    : `https://vidlink.pro/movie/${id}?primaryColor=00f3ff`;
+    ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=00f3ff&autoplay=false`
+    : `https://vidlink.pro/movie/${id}?primaryColor=00f3ff&autoplay=false`;
 
   return (
     <motion.div

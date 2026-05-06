@@ -37,7 +37,8 @@ export interface Media {
 }
 
 export const INAPPROPRIATE_KEYWORDS = [
-  'porn', 'sex', 'erotic', 'xxx', 'hentai', 'nude', 'nudity', 'nsfw', 'incest', 'lust', 'sensual', 'hardcore'
+  'porn', 'sex', 'erotic', 'xxx', 'hentai', 'nude', 'nudity', 'nsfw', 'incest', 'lust', 'sensual', 'hardcore',
+  'overflow', 'ecchi', 'smut', 'softcore', 'seduction', 'prostitute', 'brothel', 'stripper', 'escort'
 ];
 
 const filterSafe = (results: any[]) => {
@@ -54,7 +55,10 @@ const filterSafe = (results: any[]) => {
       item.overview
     ].filter(Boolean).join(' ').toLowerCase();
 
-    return !INAPPROPRIATE_KEYWORDS.some(keyword => textToCheck.includes(keyword));
+    return !INAPPROPRIATE_KEYWORDS.some(keyword => {
+      const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+      return regex.test(textToCheck);
+    });
   });
 };
 
