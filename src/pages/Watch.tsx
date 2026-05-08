@@ -1,7 +1,7 @@
 import { useEffect, useState, Suspense, lazy } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Play } from 'lucide-react';
+import { ArrowLeft, Play, ShieldAlert } from 'lucide-react';
 import { fetchMovieDetails, fetchSimilar, Media } from '../services/tmdb';
 import { MovieRow } from '../components/MovieRow';
 import { BlurText } from '../components/BlurText';
@@ -9,6 +9,7 @@ import { NeonGradientCard } from '../components/ui/neon-gradient-card';
 import { Particles } from '../components/ui/particles';
 import Magnet from '../components/ui/Magnet';
 import LightRays from '../components/ui/LightRays';
+import { AdBlockGuideModal } from '../components/AdBlockGuideModal';
 
 const PlayerWrapper = lazy(() => import('../components/PlayerWrapper').then(m => ({ default: m.PlayerWrapper })));
 
@@ -21,6 +22,7 @@ export function Watch() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showAdGuide, setShowAdGuide] = useState(false);
   
   // Track season/episode for TV
   const [season, setSeason] = useState(1);
@@ -108,9 +110,9 @@ export function Watch() {
       {isPlaying ? (
         <motion.div 
           layoutId={`card-container-${id}`}
-          className="w-full flex justify-center py-0 sm:py-6"
+          className="w-full flex flex-col items-center py-0 sm:py-6"
         >
-          <div className="w-full max-w-[1600px] mx-auto sm:px-6">
+          <div className="w-full max-w-[1600px] mx-auto sm:px-6 relative">
             <Suspense fallback={<div className="w-full aspect-video bg-black/80 flex items-center justify-center border border-white/10 rounded-xl"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"/></div>}>
               <PlayerWrapper 
                 embedUrl={embedUrl}
@@ -124,6 +126,17 @@ export function Watch() {
                 }}
               />
             </Suspense>
+            
+            {/* Adblock Notice Button */}
+            <div className="absolute top-4 right-4 sm:top-8 sm:right-10 z-20 flex flex-col items-end">
+               <button 
+                 onClick={() => setShowAdGuide(true)}
+                 className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 backdrop-blur-md px-4 py-2 rounded-full text-white text-sm font-medium transition-all shadow-lg"
+               >
+                 <ShieldAlert className="w-4 h-4 text-red-500" />
+                 <span>Getting Popups? Fix Here</span>
+               </button>
+            </div>
           </div>
         </motion.div>
       ) : (
@@ -272,6 +285,11 @@ export function Watch() {
           <MovieRow title="More Like This" movies={similar} />
         </div>
       )}
+      
+      <AdBlockGuideModal 
+        isOpen={showAdGuide}
+        onClose={() => setShowAdGuide(false)}
+      />
     </motion.div>
   );
 }
