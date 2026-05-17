@@ -21,7 +21,7 @@ export function Watch() {
   const [providers, setProviders] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [showAdGuide, setShowAdGuide] = useState(false);
   
   // Track season/episode for TV
@@ -37,24 +37,32 @@ export function Watch() {
           fetchMovieDetails(id, type),
           fetchSimilar(id, type)
         ]);
-        setDetails(detailsData);
-        setSimilar(similarData);
+        if (!detailsData || (detailsData as any).success === false || (detailsData as any).status_code) {
+          setDetails(null);
+        } else {
+          setDetails(detailsData);
+          setSimilar(similarData);
+          
+          // Save to Continue Watching
+          try {
+            const recentRaw = localStorage.getItem('snapstream_recent');
+            const recent: Media[] = recentRaw ? JSON.parse(recentRaw) : [];
+            const filtered = recent.filter(m => m.id !== detailsData.id);
+            const newRecent = [detailsData, ...filtered].slice(0, 10);
+            localStorage.setItem('snapstream_recent', JSON.stringify(newRecent));
+          } catch (e) {
+            console.warn('LocalStorage error', e);
+          }
 
-        // Fetch streaming providers for accurate count
-        try {
-          const { fetchProviders } = await import('../services/tmdb');
-          const providersData = await fetchProviders(id, type);
-          setProviders(providersData);
-        } catch (e) {
-           console.warn('Could not fetch providers', e);
+          // Fetch streaming providers for accurate count
+          try {
+            const { fetchProviders } = await import('../services/tmdb');
+            const providersData = await fetchProviders(id, type);
+            setProviders(providersData);
+          } catch (e) {
+            console.warn('Could not fetch providers', e);
+          }
         }
-
-        // Save to Continue Watching
-        const recentRaw = localStorage.getItem('snapstream_recent');
-        const recent: Media[] = recentRaw ? JSON.parse(recentRaw) : [];
-        const filtered = recent.filter(m => m.id !== detailsData.id);
-        const newRecent = [detailsData, ...filtered].slice(0, 10);
-        localStorage.setItem('snapstream_recent', JSON.stringify(newRecent));
         
       } catch (error) {
         console.error('Failed to load movie details', error);
@@ -94,7 +102,7 @@ export function Watch() {
   }
 
   const SERVERS = [
-    { id: 'vidlink', name: 'VidLink (Multi)' },
+    { id: 'vidlink', name: 'VidLink (Recommended)' },
     { id: 'vidsrc-cc', name: 'VidSrc.cc' },
     { id: 'vidsrc-to', name: 'VidSrc.to' },
     { id: 'vidsrc-me', name: 'VidSrc.me' },
@@ -133,13 +141,14 @@ export function Watch() {
     >
       {/* Background Backdrop for depth */}
       {details.backdrop_path && (
-        <div className="fixed inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden h-full">
           <img 
             src={`https://image.tmdb.org/t/p/original${details.backdrop_path}`}
             alt=""
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
       )}
 
