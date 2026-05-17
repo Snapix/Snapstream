@@ -21,7 +21,7 @@ export function Watch() {
   const [providers, setProviders] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [showAdGuide, setShowAdGuide] = useState(false);
   
   // Track season/episode for TV
@@ -76,23 +76,32 @@ export function Watch() {
     );
   }
 
-  if (!details) {
+  if (!details && !isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <h2 className="font-display text-2xl font-bold">Content not found</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-black text-white p-6">
+        <h2 className="font-display text-2xl font-bold mb-4 opacity-80 tracking-tight">MOVIE DETAILS NOT FOUND</h2>
+        <p className="text-zinc-500 mb-8 max-w-md text-center leading-relaxed">
+          We're having trouble retrieving information for this title. This could be due to a network error or the content might no longer be available.
+        </p>
+        <button 
+          onClick={() => navigate('/')}
+          className="bg-primary/20 text-primary border border-primary/40 px-8 py-3 rounded-full font-bold hover:bg-primary/30 transition-all shadow-[0_0_20px_rgba(0,243,255,0.1)]"
+        >
+          BACK TO HOME
+        </button>
       </div>
     );
   }
 
   const SERVERS = [
-    { id: 'vidsrc-cc', name: 'VidSrc.cc (Primary)' },
-    { id: 'vidlink', name: 'VidLink' },
+    { id: 'vidlink', name: 'VidLink (Multi)' },
+    { id: 'vidsrc-cc', name: 'VidSrc.cc' },
     { id: 'vidsrc-to', name: 'VidSrc.to' },
     { id: 'vidsrc-me', name: 'VidSrc.me' },
     { id: 'embed-su', name: 'Embed.su' }
   ];
 
-  const [server, setServer] = useState('vidsrc-cc');
+  const [server, setServer] = useState('vidlink');
 
   // Use selected server URL
   const getEmbedUrl = () => {
@@ -120,9 +129,21 @@ export function Watch() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-black pt-24 sm:pt-28 pb-20"
+      className="min-h-screen bg-black pt-24 sm:pt-28 pb-20 relative"
     >
-      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 mb-6">
+      {/* Background Backdrop for depth */}
+      {details.backdrop_path && (
+        <div className="fixed inset-0 z-0 opacity-20 pointer-events-none">
+          <img 
+            src={`https://image.tmdb.org/t/p/original${details.backdrop_path}`}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black to-transparent" />
+        </div>
+      )}
+
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 mb-6">
         <button 
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/10 px-5 py-2.5 rounded-full text-zinc-300 hover:text-white hover:bg-white/10 transition-all hover:scale-105 active:scale-95 group shadow-xl"
@@ -134,10 +155,7 @@ export function Watch() {
 
       {/* Conditional Rendering: Player vs Preview Backdrop */}
       {isPlaying ? (
-        <motion.div 
-          layoutId={`card-container-${id}`}
-          className="w-full flex flex-col items-center py-0 sm:py-6"
-        >
+        <div className="relative z-10 w-full flex flex-col items-center py-0 sm:py-6">
           <div className="w-full max-w-[1600px] mx-auto sm:px-6 relative">
             <Suspense fallback={<div className="w-full aspect-video bg-black/80 flex items-center justify-center border border-white/10 rounded-xl"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"/></div>}>
               <PlayerWrapper 
@@ -164,11 +182,10 @@ export function Watch() {
                </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       ) : (
-        <motion.div 
-          layoutId={`card-container-${id}`}
-          className="relative w-full h-[50vh] sm:h-[60vh] bg-black"
+        <div 
+          className="relative z-10 w-full h-[50vh] sm:h-[60vh] bg-black"
         >
           {details.backdrop_path && (
             <>
@@ -203,11 +220,11 @@ export function Watch() {
               </button>
             </Magnet>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Server Selection UI */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 mt-6">
+      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-4 sm:px-6 mt-6">
         <h3 className="text-zinc-400 text-sm font-semibold tracking-wider uppercase mb-3">Select Server (If current is not working)</h3>
         <div className="flex flex-wrap gap-2">
           {SERVERS.map(s => (
