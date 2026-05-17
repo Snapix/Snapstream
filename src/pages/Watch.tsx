@@ -84,10 +84,36 @@ export function Watch() {
     );
   }
 
-  // Use default vidlink URL with custom primary color to match theme
-  const embedUrl = type === 'tv' 
-    ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=00f3ff&autoplay=false`
-    : `https://vidlink.pro/movie/${id}?primaryColor=00f3ff&autoplay=false`;
+  const SERVERS = [
+    { id: 'vidsrc-cc', name: 'VidSrc.cc (Primary)' },
+    { id: 'vidlink', name: 'VidLink' },
+    { id: 'vidsrc-to', name: 'VidSrc.to' },
+    { id: 'vidsrc-me', name: 'VidSrc.me' },
+    { id: 'embed-su', name: 'Embed.su' }
+  ];
+
+  const [server, setServer] = useState('vidsrc-cc');
+
+  // Use selected server URL
+  const getEmbedUrl = () => {
+    switch(server) {
+      case 'vidsrc-to':
+        return type === 'tv' ? `https://vidsrc.to/embed/tv/${id}/${season}/${episode}` : `https://vidsrc.to/embed/movie/${id}`;
+      case 'vidsrc-me':
+        return type === 'tv' ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${season}&episode=${episode}` : `https://vidsrc.me/embed/movie?tmdb=${id}`;
+      case 'vidsrc-cc':
+        return type === 'tv' ? `https://vidsrc.cc/v2/embed/tv/${id}/${season}/${episode}` : `https://vidsrc.cc/v2/embed/movie/${id}`;
+      case 'embed-su':
+        return type === 'tv' ? `https://embed.su/embed/tv/${id}/${season}/${episode}` : `https://embed.su/embed/movie/${id}`;
+      case 'vidlink':
+      default:
+        return type === 'tv' 
+          ? `https://vidlink.pro/tv/${id}/${season}/${episode}?primaryColor=00f3ff&autoplay=false`
+          : `https://vidlink.pro/movie/${id}?primaryColor=00f3ff&autoplay=false`;
+    }
+  };
+
+  const embedUrl = getEmbedUrl();
 
   return (
     <motion.div
@@ -179,6 +205,29 @@ export function Watch() {
           </div>
         </motion.div>
       )}
+
+      {/* Server Selection UI */}
+      <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 mt-6">
+        <h3 className="text-zinc-400 text-sm font-semibold tracking-wider uppercase mb-3">Select Server (If current is not working)</h3>
+        <div className="flex flex-wrap gap-2">
+          {SERVERS.map(s => (
+            <button
+              key={s.id}
+              onClick={() => {
+                setServer(s.id);
+                setIsPlaying(true);
+              }}
+              className={`px-4 py-2 text-sm font-bold rounded-full transition-all border ${
+                server === s.id
+                 ? 'bg-primary/20 text-primary border-primary/50 shadow-[0_0_15px_rgba(0,243,255,0.2)]'
+                 : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10 hover:border-white/20'
+              }`}
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Details Section - Scrolled down */}
       <motion.div 
